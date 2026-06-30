@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estrategias y Diseño de Campañas</title>
+    <!-- Importación de Poppins desde Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Estilos Base - Estilo Apple Light */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background-color: #ffffff; /* Fondo claro puro de Apple */
+            color: #1d1d1f; /* Texto casi negro de Apple */
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Encabezado Centrado Estilo Apple Hero */
+        .intro-header {
+            height: 85vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .intro-header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+            background: linear-gradient(180deg, #27728F 0%, #00323C 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        /* Instrucción Flotante Fija */
+        .floating-instruction {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            padding: 12px 24px;
+            border-radius: 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+            pointer-events: none;
+        }
+
+        .floating-instruction span {
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            color: #27728F;
+            text-transform: uppercase;
+        }
+
+        /* Icono del Mouse */
+        .mouse-icon {
+            width: 22px;
+            height: 36px;
+            border: 2px solid #27728F;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .mouse-wheel {
+            width: 4px;
+            height: 8px;
+            background-color: #0066cc;
+            border-radius: 2px;
+            position: absolute;
+            top: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: scrollWheel 1.6s infinite ease-in-out;
+        }
+
+        @keyframes scrollWheel {
+            0% { top: 6px; opacity: 1; }
+            50% { top: 14px; opacity: 0.3; }
+            100% { top: 6px; opacity: 1; }
+        }
+
+        /* Contenedor del Scroll */
+        .zoom-scroll-container {
+            width: 100%;
+            max-width: 950px;
+            margin: 0 auto;
+            padding: 0 30px 20vh 30px;
+        }
+
+        /* Contenedor Sticky */
+        .card-wrapper {
+            position: sticky;
+            top: 15vh;
+            height: 70vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 40vh; /* Mayor separación para controlar los tiempos de scroll */
+        }
+
+        /* Tarjeta Estilo Apple con corrección de superposición */
+        .card {
+            background: rgba(245, 245, 247, 0.9); /* Más opaco para evitar transparencias molestas */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 24px;
+            padding: 45px;
+            width: 100%;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.05);
+            
+            /* Animación nativa fluida de entrada Y salida */
+            animation: appleZoomInOut linear both;
+            animation-timeline: view();
+            /* Cubre el ciclo completo de la tarjeta al pasar por la pantalla */
+            animation-range: entry 0% exit 100%; 
+        }
+
+        /* Animación perfeccionada: Escala y Desvanece al entrar Y al salir */
+        @keyframes appleZoomInOut {
+            0% {
+                transform: scale(0.85) translateY(50px);
+                opacity: 0;
+            }
+            25%, 70% {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0.9) translateY(-50px);
+                opacity: 0; /* Se desvanece por completo antes de que llegue la siguiente */
+            }
+        }
+
+        /* Estilo del Párrafo */
+        .card p {
+            font-size: 1.1rem;
+            font-weight: 400;
+            line-height: 1.8;
+            color: #1d1d1f;
+            text-align: left;
+        }
+
+        .card p strong {
+            color: #000000;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Instrucción Flotante Fija -->
+    <div class="floating-instruction">
+        <div class="mouse-icon">
+            <div class="mouse-wheel"></div>
+        </div>
+        <span>Haga scroll para ampliar la información</span>
+    </div>
+
+    <!-- Cabecera Centrada -->
+    <header class="intro-header">
+        <h1>Diseño de Mensajes y<br>Estrategias de Comunicación</h1>
+    </header>
+
+    <main class="zoom-scroll-container">
+
+        <!-- Tarjeta 1 -->
+        <div class="card-wrapper">
+            <div class="card">
+                <p>El diseño de los mensajes y su estrategia de comunicación son otros pilares fundamentales. <strong>Goldstein et al. (2008)</strong> destacan que los mensajes efectivos deben ser claros, relevantes y emocionalmente resonantes para captar la atención de la audiencia. Además, es importante seleccionar los canales de comunicación adecuados para cada segmento de la población. Mientras que las plataformas digitales pueden ser ideales para llegar a los jóvenes, los medios tradicionales, como la radio o la televisión, pueden ser más efectivos para adultos mayores. Asimismo, el uso de elementos visuales atractivos, como videos testimoniales o simulaciones de accidentes, puede generar un impacto emocional que motive a la audiencia a reflexionar sobre sus comportamientos.</p>
+            </div>
+        </div>
+
+        <!-- Tarjeta 2 -->
+        <div class="card-wrapper">
+            <div class="card">
+                <p>El entorno físico también juega un papel crucial en el diseño de campañas de seguridad vial. Según <strong>Thaler y Sunstein (2008)</strong>, los nudges son intervenciones poderosas para modificar comportamientos sin necesidad de coerción. Cambios simples en el diseño vial, como la implementación de pasos peatonales 3D o la instalación de señales luminosas en zonas escolares, pueden guiar a los conductores y peatones hacia decisiones más seguras. Estas intervenciones deben combinarse con mensajes educativos para maximizar su efectividad.</p>
+            </div>
+        </div>
+
+        <!-- Tarjeta 3 -->
+        <div class="card-wrapper">
+            <div class="card">
+                <p>Un elemento clave que a menudo se pasa por alto es la evaluación continua del impacto de las campañas. <strong>(Adamos & Nathanail, 2016)</strong> proponen aplicar múltiples diseños de investigación (experimental, cuasi-experimental y no experimental), combinando métricas cuantitativas, como la reducción en la tasa de accidentes, con métricas cualitativas, como encuestas de percepción, para medir la efectividad de las intervenciones de manera integral. Este monitoreo no solo permite identificar áreas de mejora, sino que también asegura que las campañas sean ajustadas de acuerdo con los resultados observados. Por ejemplo, si una campaña inicial no logra aumentar el uso de cascos en motociclistas, se podrían rediseñar los mensajes para enfocarse en barreras específicas, como la percepción de incomodidad.</p>
+            </div>
+        </div>
+
+        <!-- Tarjeta 4 -->
+        <div class="card-wrapper">
+            <div class="card">
+                <p>Otro aspecto esencial es la adaptación cultural y contextual de las intervenciones. <strong>(Sunstein, 2021)</strong> enfatiza que las campañas deben ser culturalmente sensibles y considerar las particularidades del entorno social y económico. Por ejemplo, en comunidades rurales, los mensajes que apelan a la protección familiar pueden ser más efectivos que aquellos centrados en estadísticas. Además, las intervenciones deben garantizar que las soluciones propuestas sean accesibles para todos, incluidas las personas con discapacidades.</p>
+            </div>
+        </div>
+
+        <!-- Tarjeta 5 -->
+        <div class="card-wrapper">
+            <div class="card">
+                <p>Es fundamental garantizar la ética y transparencia en el diseño de las campañas;<strong>Michie et al. (2019)</strong> advierten que las intervenciones deben respetar la autonomía de las personas y evitar manipulaciones encubiertas. Los mensajes deben ser honestos y basados en evidencia científica, y las intervenciones deben estar diseñadas para beneficiar a todos los grupos, sin exclusión.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="outro-footer" style="height: 40vh; display: flex; justify-content: center; align-items: center; color: #86868b; font-size: 0.9rem;">
+        <p>Copyright © 2026 — Comunicación Social e Intervenciones Viales.</p>
+    </footer>
+
+</body>
+</html>
