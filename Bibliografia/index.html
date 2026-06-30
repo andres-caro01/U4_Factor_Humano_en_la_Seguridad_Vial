@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bibliografía - Comportamiento y Seguridad Vial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent-base: #27728F; 
+            --accent-bright: #4ce3ff; 
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(39, 114, 143, 0.3);
+            --text-main: #ffffff;
+            --text-dim: #cce9f5;
+        }
+
+        body {
+            margin: 0; padding: 0; min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background-color: #030a0d;
+            color: var(--text-main);
+            display: flex; flex-direction: column; align-items: center;
+            overflow-x: hidden; cursor: default;
+        }
+
+        #custom-cursor-tool {
+            position: fixed; pointer-events: none;
+            background: var(--accent-bright); color: #000;
+            padding: 5px 12px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 700;
+            z-index: 9999; display: none;
+            transform: translate(15px, 15px);
+            box-shadow: 0 0 15px var(--accent-bright);
+        }
+
+        .fluid-background {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; overflow: hidden; background: #05131a; filter: blur(80px);
+        }
+        .fluid-layer { position: absolute; border-radius: 50%; opacity: 0.35; animation: fluidMove infinite alternate ease-in-out; }
+        .layer-1 { background: radial-gradient(circle, var(--accent-base) 0%, transparent 70%); width: 100vw; height: 100vw; top: -30%; left: -10%; animation-duration: 20s; }
+        .layer-2 { background: radial-gradient(circle, #0e303d 0%, transparent 70%); width: 80vw; height: 80vw; bottom: -20%; right: -10%; animation-duration: 25s; }
+        @keyframes fluidMove { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(10%, 5%) scale(1.1); } }
+
+        .nav-instruction {
+            width: 90vw; max-width: 1400px;
+            background: rgba(39, 114, 143, 0.15);
+            border: 1px dashed var(--accent-bright);
+            padding: 15px; border-radius: 12px;
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9rem; color: var(--accent-bright);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        .main-header { text-align: center; padding: 30px 20px; z-index: 1; }
+        .main-header h1 { font-weight: 300; font-size: 2rem; letter-spacing: 4px; text-transform: uppercase; margin: 0; background: linear-gradient(to right, #fff, var(--text-dim)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .main-header .line { width: 60px; height: 3px; background: var(--accent-bright); margin: 15px auto; }
+
+        .reference-grid {
+            display: grid; width: 90vw; max-width: 1400px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px; padding-bottom: 80px; z-index: 1;
+        }
+
+        .card {
+            font-family: 'Poppins', sans-serif;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px; padding: 25px;
+            display: flex; flex-direction: column;
+            transition: all 0.3s ease;
+            min-height: 190px;
+        }
+        .card:hover { border-color: var(--accent-bright); transform: translateY(-5px); background: rgba(39, 114, 143, 0.08); box-shadow: 0 10px 20px rgba(39, 114, 143, 0.15); }
+
+        .author-tag { font-size: 0.75rem; font-weight: 600; color: var(--accent-bright); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+        .title { font-size: 0.9rem; font-weight: 400; line-height: 1.6; color: var(--text-main); margin-bottom: 15px; }
+
+        .footer-info {
+            font-size: 0.75rem; font-weight: 300; color: var(--text-dim);
+            border-top: 1px solid rgba(39, 114, 143, 0.2);
+            padding-top: 15px; margin-top: auto;
+        }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-visit { font-family: 'Poppins', sans-serif; text-decoration: none; background: var(--accent-bright); color: #000; padding: 6px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; transition: background 0.2s; }
+        .btn-visit:hover { background: #fff; }
+        .btn-copy { font-family: 'Poppins', sans-serif; background: transparent; border: 1px solid var(--accent-bright); color: var(--accent-bright); padding: 6px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        .btn-copy:hover { background: var(--accent-bright); color: #000; }
+        
+    </style>
+</head>
+<body>
+
+    <div id="custom-cursor-tool">¡Enlace Copiado!</div>
+
+    <div class="fluid-background">
+        <div class="fluid-layer layer-1"></div>
+        <div class="fluid-layer layer-2"></div>
+    </div>
+
+    <div class="nav-instruction">
+        🧠 <b>Instrucción de Navegación:</b> Examina el marco de referencia sobre modificación conductual, percepción del riesgo y modelos de persuasión social aplicados al entorno del transporte.
+    </div>
+
+    <header class="main-header">
+        <h1>Cambio Conductual y Psicología Vial</h1>
+        <div class="line"></div>
+    </header>
+
+    <main class="reference-grid" id="grid"></main>
+
+    <script>
+        const sources = [
+            { a: "Thaler, R. & Sunstein, C. R. (2008)", t: "Nudge: Improving decisions about health, wealth, and happiness", f: "s.l.: Yale University Press", u: null },
+            { a: "Aarts, L. & van Schagen, I. (2006)", t: "Driving speed and the risk of road crashes: A review", f: "Accident Analysis & Prevention, 38(2), pp. 215-224", u: null },
+            { a: "Adamos, G. & Nathanail, E. (2016)", t: "Predicting the effectiveness of road safety campaigns through alternative research designs", f: "Journal of Safety Research, Vol. 59, pp. 83-95", u: null },
+            { a: "AIP Foundation & FIA Foundation (2017)", t: "Head First: A case study of Vietnam's motorcycle helmet campaign", f: "s.l.: FIA Foundation", u: null },
+            { a: "Ajzen, I. (1991)", t: "The theory of planned behavior", f: "Organizational Behavior and Human Decision Processes, 50(2), pp. 179-211", u: null },
+            { a: "Ajzen, I. (2020)", t: "The theory of planned behavior: Frequently asked questions", f: "Human Behavior and Emerging Technologies, 2(4), pp. 314-324", u: null },
+            { a: "Albarracín, D., Johnson, B. & Zanna, M. P. (2018)", t: "The handbook of attitudes", f: "s.l.: Routledge", u: null },
+            { a: "Armitage, C. J. & Conner, M. (2001)", t: "Efficacy of the theory of planned behaviour: A meta-analytic review", f: "British Journal of Social Psychology, 40(4), pp. 471-499", u: null },
+            { a: "Caird, J. K. y otros. (2018)", t: "A meta-analysis of the effects of texting on driving", f: "Accident Analysis & Prevention, Vol. 115, pp. 223-242", u: null },
+            { a: "Cialdini, R. B. (1984)", t: "Influence: The psychology of persuasion", f: "s.l.: Harper Business", u: null },
+            { a: "Cialdini, R. B. (2021)", t: "Influence: The Psychology of Persuasion (New and Expanded ed.)", f: "s.l.: Harper Business", u: null },
+            { a: "Cialdini, R. B. & Goldstein, N. J. (2004)", t: "Social influence: Compliance and conformity", f: "Annual Review of Psychology, 55(1), pp. 591-621", u: null },
+            { a: "Durlauf, S. N. & Blume, L. E. (2008)", t: "The New Palgrave Dictionary of Economics (2nd ed.)", f: "s.l.: Palgrave", u: null },
+            { a: "Edquist, J., Horberry, T., Hosking, S. & Johnston, I. (2011)", t: "Effects of advertising billboards during simulated driving", f: "Applied Ergonomics, 42(4), pp. 619-626", u: null },
+            { a: "Endsley, M. R. (1995)", t: "Toward a theory of situation awareness in dynamic systems", f: "Human Factors, 37(1), pp. 32-64", u: null },
+            { a: "Endsley, M. R. (2021)", t: "Designing for situation awareness: An approach to user-centered design", f: "s.l.: CRC Press", u: null },
+            { a: "Fischhoff, B., Slovic, P. & Lichtenstein, S. (2001)", t: "Perceived risk: Psychological factors and social implications", f: "Perception of risk. Routledge, pp. 20-38", u: null },
+            { a: "Goldstein, N. J., Cialdini, R. B. & Griskevicius, V. (2008)", t: "A room with a viewpoint: Using social norms to motivate environmental conservation in hotels", f: "Journal of Consumer Research, 35(3), pp. 472-482", u: null },
+            { a: "Gordon, R. & Schott, C. (2016)", t: "Effective advertising strategies for road safety campaigns", f: "Journal of Social Marketing, 6(4), pp. 345-360", u: null },
+            { a: "Habyarimana, J. & Jack, W. (2015)", t: "Results of a large-scale randomized behavior change intervention on road safety in Kenya", f: "Proceedings of the National Academy of Sciences, 112(34), p. E4661–E4670", u: null },
+            { a: "Hamid, A. A., Ishak, N. S., Roslan, M. F. & Abdullah, K. H. (2023)", t: "Tackling Human Error in Road Crashes: An Evidence-Based Review of Causes and Effective Mitigation Strategies", f: "Journal Metrics Studies and Social Science, 2(1), pp. 1-9", u: null },
+            { a: "Helmholtz, H. v. (1867)", t: "Handbuch der physiologischen Optik", f: "Voss: Leipzig", u: null },
+            { a: "Hering, E. (1878)", t: "Zur Lehre vom Lichtsinne", f: "Vienna: Gerold", u: null },
+            { a: "Huang, J. & Li, Q. (2019)", t: "Enhancing traffic safety through dynamic signage", f: "Safety Science, Vol. 120, pp. 91-102", u: null },
+            { a: "Keller, K. L. (2013)", t: "Strategic Brand Management: Building, Measuring, and Managing Brand Equity (4th ed.)", f: "s.l.: Pearson Education", u: null },
+            { a: "Langer, E. J., Blank, A. & Chanowitz, B. (2008)", t: "The mindlessness of ostensibly thoughtful action: The role of 'placebic' information in interpersonal interaction", f: "Journal of Personality and Social Psychology, 36(6), pp. 635-642", u: null },
+            { a: "Michie, S., van Stralen, M. M. & West, R. (2011)", t: "The behaviour change wheel: A new method for characterising and designing behaviour change interventions", f: "Implementation Science, 6(1), p. 42", u: null },
+            { a: "Michie, S., van Stralen, M. M. & West, R. (2019)", t: "Behaviour change: Theory and practice", f: "s.l.: Springer", u: null },
+            { a: "Petty, R. E. & Cacioppo, J. T. (1986)", t: "Communication and persuasion: Central and peripheral routes to attitude change", f: "s.l.: Springer", u: null },
+            { a: "Prabhakharan, P., Bennett, J. M., Hurden, A. & Crundall, D. (2024)", t: "The efficacy of hazard perception training and education: A systematic review and meta-analysis", f: "Accident Analysis & Prevention, Vol. 202, p. 107554", u: null },
+            { a: "Rundmo, T. & Iversen, H. H. (2020)", t: "Risk perception and driving behaviour among adolescents in Norway", f: "Safety Science, Vol. 124, p. 104590", u: null },
+            { a: "Setyowati, D. L. y otros. (2025)", t: "Interactive social media-based road safety education for university students: Development and validation", f: "Journal of Road Safety, 36(4), pp. 40-54", u: null },
+            { a: "Shinar, D. (2017)", t: "Traffic safety and human behavior", f: "s.l.: Emerald Publishing", u: null },
+            { a: "Stanton, N. A. (2017)", t: "Advances in Human Aspects of Transportation", f: "s.l.: Springer", u: null },
+            { a: "Sunstein, C. R. (2021)", t: "Sludge: What stops us from getting things done and what to do about it", f: "s.l.: MIT Press", u: null },
+            { a: "Zajonc, R. B. (2001)", t: "Mere exposure: A gateway to the subliminal", f: "Current Directions in Psychological Science, 10(6), pp. 224-228", u: null },
+            { a: "Zegeer, C. V., Nabors, D. & Lagerwey, P. (2021)", t: "Innovative pedestrian safety measures: Implementation and evaluation", f: "Journal of Transportation Safety & Security, 13(3), pp. 174-195", u: null }
+        ];
+
+        const grid = document.getElementById('grid');
+        const tool = document.getElementById('custom-cursor-tool');
+
+        document.addEventListener('mousemove', (e) => {
+            tool.style.left = e.clientX + 'px';
+            tool.style.top = e.clientY + 'px';
+        });
+
+        sources.forEach((s) => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            let html = `
+                <div class="author-tag">${s.a}</div>
+                <div class="title">${s.t}</div>
+                <div class="footer-info">${s.f}</div>
+            `;
+
+            if(s.u) {
+                html += `
+                    <div class="btn-group">
+                        <a href="${s.u}" target="_blank" class="btn-visit">Visitar</a>
+                        <button class="btn-copy" onclick="copyLink('${s.u}')">Copiar Link</button>
+                    </div>
+                `;
+            }
+
+            card.innerHTML = html;
+            grid.appendChild(card);
+        });
+
+        function copyLink(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                tool.style.display = 'block';
+                setTimeout(() => { tool.style.display = 'none'; }, 1500);
+            });
+        }
+    </script>
+</body>
+</html>
