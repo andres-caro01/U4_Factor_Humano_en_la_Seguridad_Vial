@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrusel de Seguridad Vial y Puntos Muertos (Modo Claro)</title>
+    <style>
+        :root {
+            --bg-color: #f5f5f7;
+            --accent-blue: #0071e3;
+            --accent-purple: #8622e6;
+            --card-bg: rgba(255, 255, 255, 0.65);
+            --card-border: rgba(0, 0, 0, 0.06);
+            --text-primary: #1d1d1f;
+            --text-secondary: #424245;
+            --instruction-bg: rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: '-apple-system', BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            perspective: 1400px;
+            position: relative;
+        }
+
+        /* Instrucción Flotante Superior Derecha */
+        .instruction-overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--instruction-bg);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            z-index: 20;
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            animation: fadeIn 1s ease 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Fondo decorativo suavizado para entorno claro */
+        .bg-glow {
+            position: absolute;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(0, 113, 227, 0.06) 0%, rgba(134, 34, 230, 0.02) 50%, transparent 100%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Contenedor Principal Ajustado para las 3 Tarjetas */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            max-width: 850px;
+            height: 560px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+
+        /* Escenario de las Tarjetas */
+        .carousel-stage {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-style: preserve-3d;
+        }
+
+        /* Estilos de las Tarjetas en Modo Claro */
+        .text-card {
+            position: absolute;
+            width: 100%;
+            max-width: 780px;
+            min-height: 380px;
+            padding: 3.5rem;
+            border-radius: 28px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: transform 0.85s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.65s cubic-bezier(0.25, 1, 0.5, 1),
+                border-color 0.4s ease,
+                box-shadow 0.4s ease;
+            transform-style: preserve-3d;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* CONFIGURACIÓN GEOMÉTRICA VERTICAL (Eje Y) */
+
+        /* Estado: Activa (Centro) */
+        .text-card.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translate3d(0, 0, 0) scale(1);
+            z-index: 10;
+            border-color: rgba(0, 113, 227, 0.15);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.06),
+                0 0 40px rgba(0, 113, 227, 0.03),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        /* Estado: Siguiente (Abajo) */
+        .text-card.next {
+            opacity: 0.25;
+            visibility: visible;
+            transform: translate3d(0, 160px, -180px) rotateX(-12deg);
+            z-index: 5;
+            cursor: pointer;
+        }
+
+        /* Estado: Anterior (Arriba) */
+        .text-card.prev {
+            opacity: 0.25;
+            visibility: visible;
+            transform: translate3d(0, -160px, -180px) rotateX(12deg);
+            z-index: 5;
+            cursor: pointer;
+        }
+
+        /* Efecto Hover en tarjetas adyacentes */
+        .text-card.next:hover,
+        .text-card.prev:hover {
+            opacity: 0.5;
+            border-color: rgba(0, 0, 0, 0.12);
+        }
+
+        /* Estilo del Párrafo Puro (Alta legibilidad) */
+        .text-card p {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            text-align: left;
+            transform: translateZ(40px);
+            opacity: 0;
+            transition: opacity 0.5s ease 0.1s, transform 0.75s cubic-bezier(0.25, 1, 0.5, 1) 0.1s;
+        }
+
+        /* Disparadores de animación interna */
+        .text-card.active p {
+            opacity: 1;
+            transform: translateZ(0);
+        }
+
+        /* Controles de Navegación Lateral Derecha */
+        .controls-container {
+            position: absolute;
+            right: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.8rem;
+            z-index: 10;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--text-secondary);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .nav-btn:not(:disabled):hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: var(--accent-blue);
+            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.15);
+            color: var(--accent-blue);
+        }
+
+        /* Bloqueo Estricto en Extremos */
+        .nav-btn:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+            border-color: var(--card-border);
+            background: rgba(0, 0, 0, 0.02);
+            color: rgba(0, 0, 0, 0.2);
+            box-shadow: none;
+        }
+
+        .nav-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: transform 0.3s ease;
+        }
+
+        .prev-btn:not(:disabled):hover svg {
+            transform: translateY(-3px);
+        }
+
+        .next-btn:not(:disabled):hover svg {
+            transform: translateY(3px);
+        }
+
+        /* Indicadores Activos */
+        .indicators {
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.12);
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .dot.active {
+            height: 24px;
+            border-radius: 4px;
+            background: linear-gradient(180deg, var(--accent-blue), var(--accent-purple));
+            box-shadow: 0 2px 6px rgba(0, 113, 227, 0.3);
+        }
+
+        /* Adaptabilidad Responsiva */
+        @media (max-width: 950px) {
+            body {
+                flex-direction: column;
+                justify-content: flex-start;
+                padding-top: 60px;
+            }
+
+            .carousel-container {
+                height: 520px;
+                max-width: 90%;
+            }
+
+            .text-card {
+                padding: 2.2rem 1.8rem;
+                min-height: 320px;
+            }
+
+            .text-card p {
+                font-size: 1.05rem;
+                line-height: 1.7;
+            }
+
+            .controls-container {
+                position: relative;
+                right: auto;
+                flex-direction: row;
+                margin-top: 1.5rem;
+            }
+
+            .indicators {
+                flex-direction: row;
+            }
+
+            .dot.active {
+                width: 24px;
+                height: 6px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-glow"></div>
+
+    <div class="instruction-overlay">Haga clic sobre las flechas para navegar.</div>
+
+    <div class="carousel-container">
+        <div class="carousel-stage">
+
+            <div class="text-card">
+                <p>La duración y frecuencia de las campañas también son elementos críticos en su diseño y evaluación.
+                    Estudios han demostrado que los mensajes excesivamente prolongados tienden a saturar al público,
+                    reduciendo su impacto, mientras que las campañas demasiado breves pueden no generar cambios
+                    significativos en el comportamiento (Michie et al., 2019). Alternar períodos de alta intensidad
+                    comunicativa con pausas estratégicas ha sido identificado como una estrategia efectiva para
+                    maximizar el impacto de las campañas. Por ejemplo, una campaña intensiva que promueva el uso del
+                    cinturón de seguridad podría implementarse durante las temporadas de vacaciones, cuando el tráfico
+                    es más denso, y reactivarse en otros periodos clave, como el inicio de las clases escolares.</p>
+            </div>
+
+            <div class="text-card">
+                <p>Las tecnologías emergentes han transformado la manera de evaluar las campañas de seguridad vial,
+                    proporcionando herramientas precisas y en tiempo real para medir el impacto de las intervenciones.
+                    Los sensores de velocidad, cámaras de monitoreo y dispositivos de seguimiento ocular permiten
+                    recopilar datos detallados sobre cómo interactúan los usuarios con los mensajes de seguridad vial
+                    (Gordon & Schott, 2016). Por ejemplo, un sistema de cámaras instalado en una intersección peligrosa
+                    puede analizar si la instalación de nuevas señales ha reducido la incidencia de maniobras de alto
+                    riesgo, como giros indebidos. Asimismo, los dispositivos de seguimiento ocular pueden identificar
+                    qué elementos visuales de una campaña captan más la atención, permitiendo optimizar futuros diseños.
+                </p>
+            </div>
+
+            <div class="text-card">
+                <p>La incorporación de evaluaciones cualitativas complementa los datos cuantitativos al proporcionar
+                    información sobre las percepciones, actitudes y barreras enfrentadas por los actores viales. Las
+                    entrevistas y grupos focales son particularmente útiles para explorar cómo los diferentes grupos
+                    perciben las campañas y si estas logran resonar emocional y culturalmente con ellos. Por ejemplo,
+                    una entrevista con ciclistas urbanos podría revelar si las campañas han cambiado su percepción sobre
+                    la importancia del uso del casco o si aún enfrentan barreras como la percepción de incomodidad o la
+                    falta de disponibilidad de cascos asequibles. Estas metodologías cualitativas son fundamentales para
+                    ajustar los mensajes y garantizar que sean culturalmente relevantes y efectivamente persuasivos
+                    (Langer et al., 2008).</p>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="controls-container">
+        <button class="nav-btn prev-btn" aria-label="Subir">
+            <svg viewBox="0 0 24 24">
+                <path d="M18 15l-6-6-6 6" />
+            </svg>
+        </button>
+        <div class="indicators"></div>
+        <button class="nav-btn next-btn" aria-label="Bajar">
+            <svg viewBox="0 0 24 24">
+                <path d="M6 9l6 6 6-6" />
+            </svg>
+        </button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.text-card');
+            const prevBtn = document.querySelector('.prev-btn');
+            const nextBtn = document.querySelector('.next-btn');
+            const indicatorsContainer = document.querySelector('.indicators');
+
+            let currentIndex = 0;
+            const totalCards = cards.length;
+
+            cards.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.classList.add('dot');
+                if (index === 0) dot.classList.add('active');
+                dot.addEventListener('click', () => goToSlide(index));
+                indicatorsContainer.appendChild(dot);
+            });
+
+            const dots = document.querySelectorAll('.dot');
+
+            function updateCarousel() {
+                cards.forEach((card, index) => {
+                    card.classList.remove('active', 'next', 'prev');
+
+                    if (index === currentIndex) {
+                        card.classList.add('active');
+                    } else if (index === currentIndex + 1) {
+                        card.classList.add('next');
+                    } else if (index === currentIndex - 1) {
+                        card.classList.add('prev');
+                    }
+                });
+
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === currentIndex);
+                });
+
+                prevBtn.disabled = (currentIndex === 0);
+                nextBtn.disabled = (currentIndex === totalCards - 1);
+            }
+
+            function nextSlide() {
+                if (currentIndex < totalCards - 1) {
+                    currentIndex++;
+                    updateCarousel();
+                }
+            }
+
+            function prevSlide() {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateCarousel();
+                }
+            }
+
+            function goToSlide(index) {
+                currentIndex = index;
+                updateCarousel();
+            }
+
+            nextBtn.addEventListener('click', nextSlide);
+            prevBtn.addEventListener('click', prevSlide);
+
+            document.querySelector('.carousel-stage').addEventListener('click', (e) => {
+                const clickedCard = e.target.closest('.text-card');
+                if (!clickedCard) return;
+
+                if (clickedCard.classList.contains('next')) nextSlide();
+                if (clickedCard.classList.contains('prev')) prevSlide();
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowDown') nextSlide();
+                if (e.key === 'ArrowUp') prevSlide();
+            });
+
+            updateCarousel();
+        });
+    </script>
+</body>
+
+</html>
