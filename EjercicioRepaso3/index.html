@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repaso: Evaluación y Efectividad de Campañas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <style>
+        :root {
+            --primary: #27728F;
+            --primary-dark: #1C546B;
+            --primary-light: #EBF1F4;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            font-size: 17px;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f7f9;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #main-container {
+            width: 95%;
+            max-width: 1000px;
+            height: 870px; 
+            background: white;
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(39, 114, 143, 0.2);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2.5rem 3.5rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) #f1f1f1;
+        }
+
+        .text-custom { color: var(--primary); }
+        .bg-custom { background-color: var(--primary); }
+
+        .btn-action {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 3.5rem;
+            border-radius: 99px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+        }
+        .btn-action:hover:not(:disabled) {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(39, 114, 143, 0.3);
+        }
+
+        .option-card {
+            transition: all 0.2s ease;
+            border: 2px solid #f1f5f9;
+            cursor: pointer;
+        }
+        
+        .option-card.selected {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+        }
+
+        .option-card.locked { pointer-events: none; }
+
+        /* Estilos de Arrastrar y Soltar / Completar Espacios */
+        .drop-zone-inline {
+            border-bottom: 2px dashed #94a3b8;
+            background-color: #f8fafc;
+            padding: 2px 8px;
+            min-height: 40px;
+            min-width: 210px;
+            max-width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.3s;
+            vertical-align: middle;
+            margin: 4px;
+        }
+        .drop-zone-inline.active { 
+            border-color: var(--primary); 
+            background: var(--primary-light); 
+        }
+        
+        .drag-item-inline {
+            background: white;
+            border: 2px solid var(--primary);
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: grab;
+            font-weight: 500;
+            font-size: 14px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            color: #1e293b;
+            line-height: 1.3;
+            transition: transform 0.2s, background-color 0.2s;
+            text-align: center;
+            user-select: none;
+        }
+        .drag-item-inline:active { cursor: grabbing; transform: scale(0.97); }
+        .drag-item-inline.selected-for-click {
+            background-color: var(--primary-light);
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 0 3px rgba(39, 114, 143, 0.4);
+        }
+        .drag-item-inline.placed-item {
+            margin: 0;
+            width: 100%;
+        }
+
+        .circle-bar { 
+            fill: none; 
+            stroke: var(--primary); 
+            stroke-width: 10; 
+            stroke-linecap: round; 
+            transition: stroke-dashoffset 1.5s ease-out;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="main-container">
+        
+        <!-- PANTALLA INICIAL -->
+        <div id="screen-start" class="scroll-content flex flex-col items-center justify-center text-center animate__animated animate__fadeIn">
+            <span class="px-4 py-1.5 bg-[#27728F]/10 text-custom font-bold text-xs uppercase tracking-widest rounded-full mb-4">Módulo de Repaso 3</span>
+            <h1 class="text-4xl font-bold text-custom mb-3 leading-tight">Evaluación y Efectividad de Campañas</h1>
+            <p class="text-2xl mb-5 text-slate-600 font-semibold">Medición de Impacto y Cambio Conductual</p>
+            <p class="mb-10 max-w-2xl text-slate-500 text-lg">Pone a prueba tus conocimientos sobre los elementos clave de recordación en campañas viales, la diferencia entre recordación y cambio conductual, y la combinación de indicadores objetivos en zonas vulnerables.</p>
+            <button onclick="startQuiz()" class="btn-action text-xl shadow-lg">INICIAR REPASO</button>
+        </div>
+
+        <!-- PANTALLA DE CUESTIONARIO -->
+        <div id="screen-quiz" class="hidden flex flex-col h-full">
+            <div class="px-14 pt-8 flex justify-between items-center bg-white z-10">
+                <span id="q-number" class="font-bold text-custom text-sm tracking-widest uppercase"></span>
+                <div class="w-48 h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div id="progress-fill" class="h-full bg-custom transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="scroll-content animate__animated animate__fadeIn" id="quiz-body">
+                <p id="q-instruction" class="text-custom font-bold italic mb-2 text-base"></p>
+                <div id="case-box" class="hidden mb-4 p-4 bg-slate-50 border-l-4 border-slate-400 text-slate-700 text-base rounded-r-xl"></div>
+                
+                <!-- Enunciado de la Pregunta -->
+                <div id="question-text-container" class="mb-6 leading-relaxed text-slate-800">
+                    <h2 id="q-text" class="text-lg font-semibold leading-snug text-slate-800 border-l-4 border-[#27728F] pl-4 py-1 bg-slate-50"></h2>
+                </div>
+
+                <!-- Contenedor para Opción Múltiple / VF -->
+                <div id="options-container" class="space-y-3"></div>
+
+                <!-- Contenedor Especial de Completar Textos (Drag & Drop / Touch Tap) -->
+                <div id="fill-blank-container" class="hidden">
+                    <div class="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                        <p class="text-xs font-bold mb-3 uppercase text-slate-500 tracking-wider text-center">Opciones para completar (arrastra o haz clic en la palabra y luego en el espacio vacío):</p>
+                        <div id="drag-bank" class="flex flex-wrap justify-center gap-2 min-h-[50px] p-2 bg-white rounded-xl border border-dashed border-slate-200"></div>
+                    </div>
+                </div>
+
+                <!-- Alerta Flotante Interna de Validación (Reemplaza alert nativo) -->
+                <div id="warning-box" class="hidden mt-4 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 font-medium text-sm flex items-center justify-center animate__animated animate__shakeX">
+                    ⚠️ Por favor, responde la pregunta o completa todos los espacios vacíos antes de validar.
+                </div>
+
+                <!-- Caja de Retroalimentación -->
+                <div id="feedback-box" class="hidden mt-6 p-5 rounded-2xl border-2 animate__animated animate__fadeInUp text-base">
+                    <p id="feedback-title" class="font-bold text-lg mb-1"></p>
+                    <div id="feedback-body" class="leading-relaxed text-slate-700"></div>
+                    <button id="btn-continue" onclick="nextStep()" class="mt-4 bg-slate-800 text-white px-8 py-2 rounded-xl hover:bg-black transition-all font-bold text-sm">Continuar</button>
+                </div>
+
+                <button id="btn-validate" onclick="validateAnswer()" class="btn-action w-full mt-6 shadow-xl text-lg">Validar Respuesta</button>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE RESULTADOS -->
+        <div id="screen-results" class="hidden scroll-content flex flex-col items-center">
+            <h2 class="text-4xl font-bold mb-2 text-custom text-center">Repaso Finalizado</h2>
+            
+            <div class="flex flex-col items-center justify-center my-4">
+                <div class="relative flex items-center justify-center">
+                    <svg class="w-56 h-56 -rotate-90">
+                        <circle cx="112" cy="112" r="95" stroke="#f1f5f9" stroke-width="10" fill="none"></circle>
+                        <circle id="final-circle" cx="112" cy="112" r="95" class="circle-bar" stroke-dasharray="596" stroke-dashoffset="596"></circle>
+                    </svg>
+                    <div class="absolute text-5xl font-black text-slate-800"><span id="result-percent">0</span>%</div>
+                </div>
+            </div>
+
+            <p id="result-score" class="text-xl font-bold mb-4 text-slate-700 text-center"></p>
+            <div id="result-msg" class="w-full max-w-2xl mb-6 p-5 bg-slate-50 rounded-2xl italic text-slate-600 text-base text-center"></div>
+            
+            <button onclick="location.reload()" class="btn-action mb-8">Reiniciar Repaso</button>
+
+            <!-- Contenedor del compilado detallado de preguntas y correcciones -->
+            <div class="w-full max-w-3xl border-t border-slate-200 pt-8 mt-4 text-left">
+                <h3 class="text-2xl font-bold text-custom mb-6 text-center">Revisión académica detallada</h3>
+                <div id="summary-cards" class="space-y-6">
+                    <!-- Se genera dinámicamente desde JavaScript -->
+                </div>
+            </div>
+
+            <button onclick="location.reload()" class="btn-action mt-10 mb-6">Reiniciar Repaso</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                type: "ms",
+                instruction: "Seleccione la respuesta correcta",
+                question: "1. ¿Qué elemento incrementa la probabilidad de recordación de una campaña de seguridad vial?",
+                options: [
+                    {t: "a) Mensajes extensos y muy técnicos.", c: false},
+                    {t: "b) Mensajes claros, simples y con conexión emocional.", c: true},
+                    {t: "c) Repetición sin variación del mismo estímulo.", c: false},
+                    {t: "d) Solo el uso de estadísticas frías.", c: false}
+                ],
+                feedback: "La emoción actúa como un refuerzo de la memoria y motiva cambios de conducta."
+            },
+            {
+                type: "vf",
+                instruction: "Seleccione Verdadero o Falso",
+                question: "2. La recordación de una campaña no siempre se traduce en cambio conductual.",
+                options: [
+                    {t: "Verdadero", c: true},
+                    {t: "Falso", c: false}
+                ],
+                feedback: "Recordar el mensaje es solo el primer paso; para lograr cambio, se deben impactar actitudes, normas sociales y percepción de control."
+            },
+            {
+                type: "fill",
+                instruction: "Arrastrar y soltar texto",
+                question: "3. La efectividad de una campaña en zonas escolares puede medirse comparando la {drop1} de los vehículos antes y después de la intervención. Para ello, pueden utilizarse {drop2} como radares o sensores. Además, es útil aplicar {drop3} a la comunidad para conocer la percepción de seguridad.",
+                options: [
+                    { key: "drop1", correct: "Velocidad promedio" },
+                    { key: "drop2", correct: "Instrumentos de medición" },
+                    { key: "drop3", correct: "Encuestas" }
+                ],
+                distractors: [
+                    "Señales preventivas",
+                    "Campañas publicitarias"
+                ],
+                feedback: "La evaluación de campañas en zonas escolares combina mediciones objetivas del comportamiento vehicular y la percepción de seguridad de la comunidad."
+            }
+        ];
+
+        let currentIdx = 0;
+        let score = 0;
+        const totalPoints = 5; // Q1(1) + Q2(1) + Q3(3) = 5 puntos totales
+        let selectedItemForClick = null;
+
+        function startQuiz() {
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('screen-quiz').classList.remove('hidden');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = quizData[currentIdx];
+            selectedItemForClick = null;
+            
+            document.getElementById('q-number').innerText = `PREGUNTA ${currentIdx + 1}/${quizData.length}`;
+            document.getElementById('progress-fill').style.width = `${((currentIdx + 1)/quizData.length)*100}%`;
+            document.getElementById('q-instruction').innerText = q.instruction;
+            document.getElementById('feedback-box').classList.add('hidden');
+            document.getElementById('warning-box').classList.add('hidden');
+            document.getElementById('btn-validate').classList.remove('hidden');
+
+            const caseBox = document.getElementById('case-box');
+            if (q.case) {
+                caseBox.innerText = q.case;
+                caseBox.classList.remove('hidden');
+            } else {
+                caseBox.classList.add('hidden');
+            }
+
+            const optContainer = document.getElementById('options-container');
+            const fillContainer = document.getElementById('fill-blank-container');
+
+            if (q.type === "fill") {
+                optContainer.classList.add('hidden');
+                fillContainer.classList.remove('hidden');
+                setupFillInBlanks(q);
+            } else {
+                fillContainer.classList.add('hidden');
+                optContainer.classList.remove('hidden');
+                document.getElementById('q-text').innerText = q.question;
+                setupSelectionOptions(q, optContainer);
+            }
+        }
+
+        function setupSelectionOptions(q, container) {
+            container.innerHTML = '';
+            q.options.forEach((opt, i) => {
+                const d = document.createElement('div');
+                d.className = "option-card flex items-center p-4 rounded-xl mb-2 text-base";
+                d.innerHTML = `
+                    <input type="radio" name="ans" id="o${i}" value="${i}" class="w-5 h-5 accent-[#27728F]">
+                    <label for="o${i}" class="ml-4 w-full cursor-pointer font-medium text-slate-700">${opt.t}</label>
+                `;
+                d.onclick = () => {
+                    document.getElementById('warning-box').classList.add('hidden');
+                    document.querySelectorAll('.option-card').forEach(el => el.classList.remove('selected'));
+                    d.classList.add('selected');
+                    d.querySelector('input').checked = true;
+                };
+                container.appendChild(d);
+            });
+        }
+
+        function setupFillInBlanks(q) {
+            const dragBank = document.getElementById('drag-bank');
+            dragBank.innerHTML = '';
+
+            const pool = [...q.options.map(o => o.correct), ...q.distractors];
+            pool.sort(() => Math.random() - 0.5);
+
+            pool.forEach((text, i) => {
+                const item = document.createElement('div');
+                item.className = "drag-item-inline";
+                item.draggable = true;
+                item.innerText = text;
+                item.id = `drag-blank-${i}`;
+                
+                item.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', e.target.id);
+                    document.getElementById('warning-box').classList.add('hidden');
+                });
+
+                item.addEventListener('click', () => {
+                    document.getElementById('warning-box').classList.add('hidden');
+                    if (selectedItemForClick) {
+                        selectedItemForClick.classList.remove('selected-for-click');
+                        selectedItemForClick.style.borderColor = "var(--primary)";
+                        selectedItemForClick.style.backgroundColor = "white";
+                    }
+                    if (selectedItemForClick === item) {
+                        selectedItemForClick = null;
+                    } else {
+                        selectedItemForClick = item;
+                        item.classList.add('selected-for-click');
+                        item.style.borderColor = "var(--primary-dark)";
+                        item.style.backgroundColor = "var(--primary-light)";
+                    }
+                });
+
+                dragBank.appendChild(item);
+            });
+
+            let questionHTML = q.question;
+            q.options.forEach((opt) => {
+                const dropId = opt.key;
+                const dropPlaceholder = `<div class="drop-zone-inline border-2" id="zone-${dropId}" data-key="${dropId}"><span class="text-slate-400 text-xs font-semibold uppercase">Vacío</span></div>`;
+                questionHTML = questionHTML.replace(`{${dropId}}`, dropPlaceholder);
+            });
+
+            const qTextHeader = document.getElementById('q-text');
+            qTextHeader.innerHTML = questionHTML;
+            qTextHeader.className = "text-lg font-semibold leading-relaxed text-slate-800 border-l-4 border-[#27728F] pl-4 py-2 bg-slate-50";
+
+            document.querySelectorAll('.drop-zone-inline').forEach(zone => {
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    zone.classList.add('active');
+                });
+
+                zone.addEventListener('dragleave', () => zone.classList.remove('active'));
+
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('active');
+                    const itemId = e.dataTransfer.getData('text/plain');
+                    const draggedElement = document.getElementById(itemId);
+                    placeElementInZone(draggedElement, zone);
+                });
+
+                zone.addEventListener('click', () => {
+                    if (selectedItemForClick) {
+                        const elementToPlace = selectedItemForClick;
+                        elementToPlace.classList.remove('selected-for-click');
+                        elementToPlace.style.borderColor = "var(--primary)";
+                        elementToPlace.style.backgroundColor = "white";
+                        selectedItemForClick = null;
+                        placeElementInZone(elementToPlace, zone);
+                    } else {
+                        const placed = zone.querySelector('.drag-item-inline');
+                        if (placed) {
+                            placed.classList.remove('placed-item');
+                            document.getElementById('drag-bank').appendChild(placed);
+                            zone.innerHTML = `<span class="text-slate-400 text-xs font-semibold uppercase">Vacío</span>`;
+                            zone.classList.remove('border-solid', 'border-custom');
+                        }
+                    }
+                });
+            });
+        }
+
+        function placeElementInZone(element, zone) {
+            if (element) {
+                const currentChild = zone.querySelector('.drag-item-inline');
+                if (currentChild) {
+                    const dragBank = document.getElementById('drag-bank');
+                    currentChild.classList.remove('placed-item');
+                    dragBank.appendChild(currentChild);
+                }
+
+                zone.innerHTML = '';
+                element.classList.add('placed-item');
+                zone.appendChild(element);
+                zone.classList.add('border-solid', 'border-custom');
+            }
+        }
+
+        function validateAnswer() {
+            const q = quizData[currentIdx];
+            let isCorrect = true;
+            let earnedPoints = 0;
+
+            if (q.type === "fill") {
+                const zones = document.querySelectorAll('.drop-zone-inline');
+                let allPlaced = true;
+
+                zones.forEach(zone => {
+                    if (!zone.querySelector('.drag-item-inline')) {
+                        allPlaced = false;
+                    }
+                });
+
+                if (!allPlaced) {
+                    document.getElementById('warning-box').classList.remove('hidden');
+                    return;
+                }
+
+                document.getElementById('warning-box').classList.add('hidden');
+                q.userAnswers = []; // Para la pantalla de resultados
+
+                zones.forEach(zone => {
+                    const key = zone.getAttribute('data-key');
+                    const placedText = zone.querySelector('.drag-item-inline').innerText;
+                    const expectedText = q.options.find(o => o.key === key).correct;
+
+                    q.userAnswers.push({ key: key, placed: placedText, correct: expectedText });
+
+                    if (placedText === expectedText) {
+                        earnedPoints++;
+                        zone.style.borderColor = "#22c55e";
+                        zone.style.background = "#f0fdf4";
+                    } else {
+                        isCorrect = false;
+                        zone.style.borderColor = "#ef4444";
+                        zone.style.background = "#fef2f2";
+                    }
+                    zone.style.pointerEvents = "none";
+                });
+
+                score += earnedPoints;
+
+            } else {
+                const selectedInput = document.querySelector('input[name="ans"]:checked');
+                if (!selectedInput) {
+                    document.getElementById('warning-box').classList.remove('hidden');
+                    return;
+                }
+
+                document.getElementById('warning-box').classList.add('hidden');
+                
+                const chosenVal = parseInt(selectedInput.value);
+                q.userAnswer = chosenVal; 
+
+                isCorrect = q.options[chosenVal].c;
+                if (isCorrect) {
+                    score++;
+                }
+
+                document.querySelectorAll('.option-card').forEach(el => el.classList.add('locked'));
+            }
+
+            const fBox = document.getElementById('feedback-box');
+            fBox.classList.remove('hidden', 'bg-green-50', 'border-green-200', 'bg-red-50', 'border-red-200');
+            document.getElementById('btn-validate').classList.add('hidden');
+
+            const fTitle = document.getElementById('feedback-title');
+            if (q.type === "fill") {
+                if (isCorrect) {
+                    fTitle.innerText = "¡Correcto!";
+                    fTitle.className = "font-bold text-lg text-green-700";
+                    fBox.classList.add('bg-green-50', 'border-green-200');
+                } else {
+                    fTitle.innerText = `Puntaje parcial: ${earnedPoints} de 3 aciertos`;
+                    fTitle.className = "font-bold text-lg text-amber-700";
+                    fBox.classList.add('bg-amber-50', 'border-amber-200');
+                }
+            } else {
+                if (isCorrect) {
+                    fTitle.innerText = "¡Correcto!";
+                    fTitle.className = "font-bold text-lg text-green-700";
+                    fBox.classList.add('bg-green-50', 'border-green-200');
+                } else {
+                    fTitle.innerText = "Incorrecto";
+                    fTitle.className = "font-bold text-lg text-red-700";
+                    fBox.classList.add('bg-red-50', 'border-red-200');
+                }
+            }
+
+            document.getElementById('feedback-body').innerHTML = `<strong>Realimentación:</strong> ${q.feedback}`;
+        }
+
+        function nextStep() {
+            currentIdx++;
+            if (currentIdx < quizData.length) {
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('screen-quiz').classList.add('hidden');
+            document.getElementById('screen-results').classList.remove('hidden');
+            
+            const percent = Math.round((score / totalPoints) * 100);
+            const circumference = 596;
+            const offset = circumference - (percent / 100) * circumference;
+            
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    document.getElementById('final-circle').style.strokeDashoffset = offset;
+                }, 50);
+            });
+            
+            let count = 0;
+            const timer = setInterval(() => {
+                if (count >= percent) {
+                    document.getElementById('result-percent').innerText = percent;
+                    clearInterval(timer);
+                } else {
+                    count++;
+                    document.getElementById('result-percent').innerText = count;
+                }
+            }, 15);
+
+            document.getElementById('result-score').innerText = `Puntaje Final: ${score} de ${totalPoints} puntos`;
+            const msg = document.getElementById('result-msg');
+            
+            if (percent === 100) {
+                msg.innerText = "¡Excelente! Dominas a la perfección las metodologías para cuantificar la efectividad de las campañas, la diferencia crítica entre recordación y cambio de hábito, y la integración de herramientas de medición en zonas escolares.";
+            } else if (percent >= 60) {
+                msg.innerText = "¡Buen trabajo! Comprendes cómo la emoción estimula la recordación y la importancia de mezclar mediciones de campo (velocidad) con encuestas de percepción social.";
+            } else {
+                msg.innerText = "Te recomendamos revisar los conceptos de recordación y cambio conductual, así como el uso de metodologías de medición física y cualitativa para evaluar intervenciones de seguridad.";
+            }
+
+            buildSummaryCards();
+        }
+
+        function buildSummaryCards() {
+            const container = document.getElementById('summary-cards');
+            container.innerHTML = '';
+
+            quizData.forEach((q, idx) => {
+                const card = document.createElement('div');
+                card.className = "p-6 rounded-2xl border-l-8 bg-slate-50 shadow-sm transition-all duration-300 animate__animated animate__fadeInUp";
+                
+                let isFullyCorrect = false;
+                let statusBadge = '';
+                let userValHTML = '';
+                let correctValHTML = '';
+
+                if (q.type === "fill") {
+                    let correctCount = 0;
+                    q.userAnswers.forEach(ans => {
+                        if (ans.placed === ans.correct) correctCount++;
+                    });
+
+                    isFullyCorrect = (correctCount === q.options.length);
+
+                    if (isFullyCorrect) {
+                        card.classList.add('border-green-500');
+                        statusBadge = '<span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full">Correcto</span>';
+                    } else if (correctCount > 0) {
+                        card.classList.add('border-amber-500');
+                        statusBadge = `<span class="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">Parcial (${correctCount}/3)</span>`;
+                    } else {
+                        card.classList.add('border-red-500');
+                        statusBadge = '<span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full">Incorrecto</span>';
+                    }
+
+                    userValHTML = "<div class='space-y-1 mt-1'>";
+                    q.userAnswers.forEach(ans => {
+                        const isThisCorrect = (ans.placed === ans.correct);
+                        const clr = isThisCorrect ? "text-green-700" : "text-red-600";
+                        userValHTML += `<div><span class="font-semibold text-slate-500">${ans.key === 'drop1' ? '1º Espacio' : ans.key === 'drop2' ? '2º Espacio' : '3º Espacio'}:</span> <span class="${clr} font-semibold">${ans.placed}</span> ${isThisCorrect ? '✓' : `(Correcto: <span class="text-green-700 font-medium">${ans.correct}</span>)`}</div>`;
+                    });
+                    userValHTML += "</div>";
+
+                } else {
+                    const userAnsIdx = q.userAnswer;
+                    const correctAnsIdx = q.options.findIndex(o => o.c);
+                    isFullyCorrect = (userAnsIdx === correctAnsIdx);
+
+                    if (isFullyCorrect) {
+                        card.classList.add('border-green-500');
+                        statusBadge = '<span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full">Correcto</span>';
+                        userValHTML = `<span class="text-green-700 font-medium">${q.options[userAnsIdx].t}</span>`;
+                    } else {
+                        card.classList.add('border-red-500');
+                        statusBadge = '<span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full">Incorrecto</span>';
+                        userValHTML = `<span class="text-red-600 font-semibold">${userAnsIdx !== undefined && userAnsIdx !== null ? q.options[userAnsIdx].t : '[Sin responder]'}</span>`;
+                        correctValHTML = `
+                            <div class="text-sm mt-1">
+                                <span class="font-semibold text-slate-500">Respuesta correcta sugerida:</span> 
+                                <span class="text-green-700 font-medium">${q.options[correctAnsIdx].t}</span>
+                            </div>
+                        `;
+                    }
+                }
+
+                // Normalización de visualización para enunciados de completado de texto
+                let cleanQuestion = q.question;
+                if (q.type === "fill") {
+                    cleanQuestion = "3. Complete el texto arrastrando las opciones correctas: \"La efectividad de una campaña en zonas escolares puede medirse comparando la [Velocidad promedio] de los vehículos antes y después de la intervención. Para ello, pueden utilizarse [Instrumentos de medición] como radares o sensores. Además, es útil aplicar [Encuestas] a la comunidad para conocer la percepción de seguridad.\"";
+                }
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-sm font-bold text-slate-400 uppercase tracking-wider">Pregunta ${idx + 1}</span>
+                        ${statusBadge}
+                    </div>
+                    <div class="font-semibold text-slate-800 mb-3 text-base">${cleanQuestion}</div>
+                    
+                    <div class="bg-white p-4 rounded-xl border border-slate-100 space-y-1.5 mb-3 shadow-inner">
+                        <div class="text-sm"><span class="font-semibold text-slate-600">Tu respuesta:</span> ${userValHTML}</div>
+                        ${correctValHTML}
+                    </div>
+                    
+                    <div class="text-sm text-slate-600 bg-slate-100 p-3 rounded-xl border border-slate-200">
+                        <strong class="text-custom">Explicación académica:</strong> ${q.feedback}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
