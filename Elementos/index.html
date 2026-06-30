@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrusel Horizontal de Seguridad Vial</title>
+    <style>
+        :root {
+            --bg-color: #f5f5f7;
+            --accent-blue: #0071e3;
+            --accent-purple: #8622e6;
+            --card-bg: rgba(255, 255, 255, 0.65);
+            --card-border: rgba(0, 0, 0, 0.06);
+            --text-primary: #1d1d1f;
+            --text-secondary: #424245;
+            --instruction-bg: rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: '-apple-system', BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            perspective: 1400px;
+            position: relative;
+        }
+
+        /* Instrucción Flotante Superior Derecha */
+        .instruction-overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--instruction-bg);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            z-index: 20;
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            animation: fadeIn 1s ease 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Fondo decorativo */
+        .bg-glow {
+            position: absolute;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(0, 113, 227, 0.06) 0%, rgba(134, 34, 230, 0.02) 50%, transparent 100%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Contenedor Principal Ajustado para Desplazamiento Horizontal */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            height: 440px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+
+        /* Escenario de las Tarjetas */
+        .carousel-stage {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-style: preserve-3d;
+        }
+
+        /* Estilos de las Tarjetas en Modo Claro */
+        .text-card {
+            position: absolute;
+            width: 100%;
+            max-width: 680px;
+            min-height: 360px;
+            padding: 3rem;
+            border-radius: 28px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: transform 0.85s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.65s cubic-bezier(0.25, 1, 0.5, 1),
+                border-color 0.4s ease,
+                box-shadow 0.4s ease;
+            transform-style: preserve-3d;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* CONFIGURACIÓN GEOMÉTRICA HORIZONTAL (Eje X) */
+
+        /* Estado: Activa (Centro) */
+        .text-card.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translate3d(0, 0, 0) scale(1);
+            z-index: 10;
+            border-color: rgba(0, 113, 227, 0.15);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.06),
+                0 0 40px rgba(0, 113, 227, 0.03),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        /* Estado: Siguiente (Derecha) */
+        .text-card.next {
+            opacity: 0.25;
+            visibility: visible;
+            transform: translate3d(180px, 0, -180px) rotateY(-12deg);
+            z-index: 5;
+            cursor: pointer;
+        }
+
+        /* Estado: Anterior (Izquierda) */
+        .text-card.prev {
+            opacity: 0.25;
+            visibility: visible;
+            transform: translate3d(-180px, 0, -180px) rotateY(12deg);
+            z-index: 5;
+            cursor: pointer;
+        }
+
+        /* Efecto Hover en tarjetas adyacentes */
+        .text-card.next:hover,
+        .text-card.prev:hover {
+            opacity: 0.5;
+            border-color: rgba(0, 0, 0, 0.12);
+        }
+
+        /* Estilo del Párrafo */
+        .text-card p {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            text-align: left;
+            transform: translateZ(40px);
+            opacity: 0;
+            transition: opacity 0.5s ease 0.1s, transform 0.75s cubic-bezier(0.25, 1, 0.5, 1) 0.1s;
+        }
+
+        /* Disparadores de animación interna */
+        .text-card.active p {
+            opacity: 1;
+            transform: translateZ(0);
+        }
+
+        /* Contenedores de Navegación Inferior Central */
+        .controls-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2.5rem;
+            margin-top: 1.5rem;
+            z-index: 10;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--text-secondary);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .nav-btn:not(:disabled):hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: var(--accent-blue);
+            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.15);
+            color: var(--accent-blue);
+        }
+
+        /* Bloqueo Estricto en Extremos */
+        .nav-btn:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+            border-color: var(--card-border);
+            background: rgba(0, 0, 0, 0.02);
+            color: rgba(0, 0, 0, 0.2);
+            box-shadow: none;
+        }
+
+        .nav-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: transform 0.3s ease;
+        }
+
+        .prev-btn:not(:disabled):hover svg {
+            transform: translateX(-3px);
+        }
+
+        .next-btn:not(:disabled):hover svg {
+            transform: translateX(3px);
+        }
+
+        /* Indicadores Activos en Sentido Horizontal */
+        .indicators-horizontal {
+            display: flex;
+            flex-direction: row;
+            gap: 0.7rem;
+            align-items: center;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.12);
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .dot.active {
+            width: 24px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            box-shadow: 0 2px 6px rgba(0, 113, 227, 0.3);
+        }
+
+        /* Adaptabilidad Responsiva */
+        @media (max-width: 768px) {
+            .carousel-container {
+                height: 480px;
+                max-width: 92%;
+            }
+
+            .text-card {
+                padding: 2.2rem 1.8rem;
+                min-height: 380px;
+            }
+
+            .text-card p {
+                font-size: 1.05rem;
+                line-height: 1.7;
+            }
+
+            .prev-btn {
+                order: 1;
+            }
+
+            .indicators-horizontal {
+                order: 2;
+            }
+
+            .next-btn {
+                order: 3;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-glow"></div>
+
+    <div class="instruction-overlay">Haga clic sobre las flechas o use el teclado para navegar.</div>
+
+    <div class="carousel-container">
+        <div class="carousel-stage">
+
+            <div class="text-card">
+                <p><strong>Diseño del mensaje:</strong> los mensajes claros, simples y emocionales tienen más probabilidades de ser
+                    recordados. Según Petty y Cacioppo (1986), los mensajes que activan el procesamiento central—es
+                    decir, que involucran reflexión y análisis por parte del receptor—tienden a tener un impacto más
+                    duradero. Por ejemplo, un mensaje que muestra las consecuencias emocionales de no usar casco (como
+                    el sufrimiento de las familias de víctimas de accidentes) puede tener mayor recordación que un
+                    mensaje meramente informativo.
+                    <br><br>
+                    Además, los mensajes visuales y gráficos suelen ser más efectivos. Imágenes impactantes o creativas,
+                    como simulaciones de accidentes o representaciones visuales de zonas escolares en 3D, capturan la
+                    atención del espectador y facilitan la retención de la información (Huang & Li, 2019).</p>
+            </div>
+
+            <div class="text-card">
+                <p><strong>Vinculación emocional:</strong> las campañas que logran conectar emocionalmente con su audiencia generan una
+                    mayor recordación. Langer et al. (2008) señalan que las emociones actúan como un "pegamento
+                    cognitivo" que refuerza la memoria y el aprendizaje. Por ejemplo, testimonios reales de víctimas de
+                    accidentes viales no solo provocan una respuesta emocional, sino que también hacen que el mensaje
+                    sea más difícil de olvidar.</p>
+            </div>
+            <div class="text-card">
+                <p><strong>Frecuencia y repetición:</strong> la repetición de los mensajes es esencial para consolidar la memoria. Según
+                    los principios de la teoría de la exposición repetida (Zajonc, 2001), los estímulos presentados de
+                    manera frecuente tienden a ser más familiares y mejor recordados. Sin embargo, es importante evitar
+                    la saturación, ya que el exceso de repetición puede llevar a la habituación, reduciendo la
+                    efectividad del mensaje (Aarts & van Schagen, 2006).</p>
+            </div>
+            <div class="text-card">
+                <p><b>Canales de comunicación:</b> la selección adecuada de canales influye directamente en la recordación. Las
+                    redes sociales permiten la creación de contenido interactivo y dinámico que fomenta la participación
+                    activa del usuario, mejorando la retención del mensaje. Setyowati et al. (2025)documentaron que los
+                    estudiantes universitarios prefieren Instagram (93,5 %) y TikTok (90,6 %) como plataformas para
+                    recibir contenido educativo sobre seguridad vial, y que la integración de estas plataformas aumenta
+                    significativamente el compromiso con los mensajes de seguridad en comparación con métodos
+                    tradicionales. Por otro lado, los medios tradicionales como la televisión y los carteles mantienen
+                    su relevancia por su alcance masivo, especialmente en audiencias mayores que muestran menor acceso a
+                    plataformas digitales.</p>
+            </div>
+            <div class="text-card">
+                <p><strong>Elementos multisensoriales:</strong> incorporar estímulos visuales, auditivos y táctiles aumenta la
+                    probabilidad de recordación. Estudios realizados por Zegeer et al. (2021) han demostrado que los
+                    pasos peatonales en 3D, que generan una percepción visual de bloques flotantes, no solo reducen la
+                    velocidad de los conductores, sino que también permanecen en su memoria debido a la novedad del
+                    estímulo.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="controls-bottom">
+        <button class="nav-btn prev-btn" aria-label="Anterior">
+            <svg viewBox="0 0 24 24">
+                <path d="M15 18l-6-6 6-6" />
+            </svg>
+        </button>
+        <div class="indicators-horizontal"></div>
+        <button class="nav-btn next-btn" aria-label="Siguiente">
+            <svg viewBox="0 0 24 24">
+                <path d="M9 18l6-6-6-6" />
+            </svg>
+        </button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.text-card');
+            const prevBtn = document.querySelector('.prev-btn');
+            const nextBtn = document.querySelector('.next-btn');
+            const indicatorsContainer = document.querySelector('.indicators-horizontal');
+
+            let currentIndex = 0;
+            const totalCards = cards.length;
+
+            cards.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.classList.add('dot');
+                if (index === 0) dot.classList.add('active');
+                dot.addEventListener('click', () => goToSlide(index));
+                indicatorsContainer.appendChild(dot);
+            });
+
+            const dots = document.querySelectorAll('.dot');
+
+            function updateCarousel() {
+                cards.forEach((card, index) => {
+                    card.classList.remove('active', 'next', 'prev');
+
+                    if (index === currentIndex) {
+                        card.classList.add('active');
+                    } else if (index === currentIndex + 1) {
+                        card.classList.add('next');
+                    } else if (index === currentIndex - 1) {
+                        card.classList.add('prev');
+                    }
+                });
+
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === currentIndex);
+                });
+
+                prevBtn.disabled = (currentIndex === 0);
+                nextBtn.disabled = (currentIndex === totalCards - 1);
+            }
+
+            function nextSlide() {
+                if (currentIndex < totalCards - 1) {
+                    currentIndex++;
+                    updateCarousel();
+                }
+            }
+
+            function prevSlide() {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateCarousel();
+                }
+            }
+
+            function goToSlide(index) {
+                currentIndex = index;
+                updateCarousel();
+            }
+
+            nextBtn.addEventListener('click', nextSlide);
+            prevBtn.addEventListener('click', prevSlide);
+
+            document.querySelector('.carousel-stage').addEventListener('click', (e) => {
+                const clickedCard = e.target.closest('.text-card');
+                if (!clickedCard) return;
+
+                if (clickedCard.classList.contains('next')) nextSlide();
+                if (clickedCard.classList.contains('prev')) prevSlide();
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight') nextSlide();
+                if (e.key === 'ArrowLeft') prevSlide();
+            });
+
+            updateCarousel();
+        });
+    </script>
+</body>
+
+</html>
