@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicio de Repaso Final - Movilidad y Seguridad Vial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <style>
+        :root {
+            --primary: #27728F;
+            --primary-dark: #1C546B;
+            --primary-light: #EBF1F4;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            font-size: 17px;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f7f9;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #main-container {
+            width: 95%;
+            max-width: 1000px;
+            height: 870px; 
+            background: white;
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(39, 114, 143, 0.2);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2.5rem 3.5rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) #f1f1f1;
+        }
+
+        .text-custom { color: var(--primary); }
+        .bg-custom { background-color: var(--primary); }
+
+        .btn-action {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 3.5rem;
+            border-radius: 99px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+        }
+        .btn-action:hover:not(:disabled) {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(39, 114, 143, 0.3);
+        }
+
+        .option-card {
+            transition: all 0.2s ease;
+            border: 2px solid #f1f5f9;
+            cursor: pointer;
+        }
+        
+        .option-card.selected {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+        }
+
+        .option-card.locked { pointer-events: none; }
+
+        .circle-bar { 
+            fill: none; 
+            stroke: var(--primary); 
+            stroke-width: 10; 
+            stroke-linecap: round; 
+            transition: stroke-dashoffset 1.5s ease-out;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="main-container">
+        
+        <div id="screen-start" class="scroll-content flex flex-col items-center justify-center text-center animate__animated animate__fadeIn">
+            <span class="px-4 py-1.5 bg-[#27728F]/10 text-custom font-bold text-xs uppercase tracking-widest rounded-full mb-4">Evaluación de Cierre</span>
+            <h1 class="text-4xl font-bold text-custom mb-3 leading-tight">Ejercicio de Repaso Final</h1>
+            <p class="text-2xl mb-5 text-slate-600 font-semibold">Modelos del Comportamiento, Persuasión e Infraestructura Segura</p>
+            <p class="mb-10 max-w-2xl text-slate-500 text-lg">Ha llegado el momento de consolidar tu aprendizaje. Esta evaluación final consta de 15 preguntas estructuradas que pondrán a prueba tu capacidad de análisis crítico y resolución de casos de estudio sobre factores humanos en la seguridad vial.</p>
+            <button onclick="startQuiz()" class="btn-action text-xl shadow-lg">COMENZAR EVALUACIÓN</button>
+        </div>
+
+        <div id="screen-quiz" class="hidden flex flex-col h-full">
+            <div class="px-14 pt-8 flex justify-between items-center bg-white z-10">
+                <span id="q-number" class="font-bold text-custom text-sm tracking-widest uppercase"></span>
+                <div class="w-48 h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div id="progress-fill" class="h-full bg-custom transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="scroll-content animate__animated animate__fadeIn" id="quiz-body">
+                <p id="q-instruction" class="text-custom font-bold italic mb-2 text-base"></p>
+                
+                <div id="case-box" class="hidden mb-5 p-5 bg-amber-50/60 border-l-4 border-amber-500 text-slate-700 text-base rounded-r-2xl shadow-sm animate__animated animate__fadeIn">
+                    <div class="flex items-center space-x-2 text-amber-800 font-bold mb-1.5">
+                        <span>📋</span>
+                        <span class="text-sm tracking-wide uppercase">Caso de Estudio Aplicado</span>
+                    </div>
+                    <p id="case-text" class="italic leading-relaxed"></p>
+                </div>
+                
+                <div id="question-text-container" class="mb-6 leading-relaxed text-slate-800">
+                    <h2 id="q-text" class="text-lg font-semibold leading-snug text-slate-800 border-l-4 border-[#27728F] pl-4 py-1 bg-slate-50"></h2>
+                </div>
+
+                <div id="options-container" class="space-y-3"></div>
+
+                <div id="warning-box" class="hidden mt-4 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 font-medium text-sm flex items-center justify-center animate__animated animate__shakeX">
+                    ⚠️ Por favor, responde la pregunta seleccionando una opción antes de validar.
+                </div>
+
+                <div id="feedback-box" class="hidden mt-6 p-5 rounded-2xl border-2 animate__animated animate__fadeInUp text-base">
+                    <p id="feedback-title" class="font-bold text-lg mb-1"></p>
+                    <div id="feedback-body" class="leading-relaxed text-slate-700"></div>
+                    <button id="btn-continue" onclick="nextStep()" class="mt-4 bg-slate-800 text-white px-8 py-2 rounded-xl hover:bg-black transition-all font-bold text-sm">Continuar</button>
+                </div>
+
+                <button id="btn-validate" onclick="validateAnswer()" class="btn-action w-full mt-6 shadow-xl text-lg">Validar Respuesta</button>
+            </div>
+        </div>
+
+        <div id="screen-results" class="hidden scroll-content flex flex-col items-center">
+            <h2 class="text-4xl font-bold mb-2 text-custom text-center">Evaluación Finalizada</h2>
+            
+            <div class="flex flex-col items-center justify-center my-4">
+                <div class="relative flex items-center justify-center">
+                    <svg class="w-56 h-56 -rotate-90">
+                        <circle cx="112" cy="112" r="95" stroke="#f1f5f9" stroke-width="10" fill="none"></circle>
+                        <circle id="final-circle" cx="112" cy="112" r="95" class="circle-bar" stroke-dasharray="596" stroke-dashoffset="596"></circle>
+                    </svg>
+                    <div class="absolute text-5xl font-black text-slate-800"><span id="result-percent">0</span>%</div>
+                </div>
+            </div>
+
+            <p id="result-score" class="text-xl font-bold mb-4 text-slate-700 text-center"></p>
+            <div id="result-msg" class="w-full max-w-2xl mb-6 p-5 bg-slate-50 rounded-2xl italic text-slate-600 text-base text-center"></div>
+            
+            <button onclick="location.reload()" class="btn-action mb-8">Reiniciar Repaso Final</button>
+
+            <div class="w-full max-w-3xl border-t border-slate-200 pt-8 mt-4 text-left">
+                <h3 class="text-2xl font-bold text-custom mb-6 text-center">Revisión académica detallada</h3>
+                <div id="summary-cards" class="space-y-6">
+                    </div>
+            </div>
+
+            <button onclick="location.reload()" class="btn-action mt-10 mb-6">Reiniciar Repaso Final</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                type: "ms",
+                instruction: "Seleccione la respuesta correcta",
+                question: "1. ¿Cómo se complementan la teoría de los nudges y la Teoría del Comportamiento Planificado en el diseño de campañas de seguridad vial?",
+                options: [
+                    {t: "a) Los nudges reemplazan completamente las normas sociales propuestas por la TPB.", c: false},
+                    {t: "b) Ambas teorías se enfocan únicamente en aumentar las sanciones a los conductores.", c: false},
+                    {t: "c) Los nudges modifican el entorno para facilitar conductas seguras, mientras la TPB influye en actitudes, normas y control percibido.", c: true},
+                    {t: "d) La TPB elimina la necesidad de intervenir sobre el entorno vial.", c: false}
+                ],
+                feedback: "La combinación de ambas teorías permite intervenir tanto en el entorno y la toma de decisiones inmediata como en los factores psicológicos y sociales que influyen en el comportamiento vial."
+            },
+            {
+                type: "ms",
+                instruction: "Seleccione la respuesta correcta",
+                question: "2. ¿Cuál de los siguientes principios de la persuasión es útil para reforzar normas sociales en campañas viales?",
+                options: [
+                    {t: "a) Reciprocidad.", c: false},
+                    {t: "b) Escasez.", c: false},
+                    {t: "c) Prueba social.", c: true},
+                    {t: "d) Autoridad.", c: false}
+                ],
+                feedback: "Resaltar que la mayoría ya cumple la norma motiva a otros a hacerlo también."
+            },
+            {
+                type: "ms",
+                instruction: "Seleccione la respuesta correcta",
+                question: "3. ¿Qué ventaja ofrece el modelo COM-B para analizar por qué algunos motociclistas no usan casco?",
+                options: [
+                    {t: "a) Permite identificar problemas relacionados con la infraestructura vial.", c: false},
+                    {t: "b) Explica el comportamiento considerando factores de capacidad, oportunidad y motivación.", c: true},
+                    {t: "c) Se enfoca en aumentar las sanciones por incumplimiento en el uso de casco.", c: false},
+                    {t: "d) Analiza las condiciones mecánicas de la motocicleta.", c: false}
+                ],
+                feedback: "El modelo COM-B permite comprender si la conducta está influenciada por falta de conocimiento, dificultades de acceso o baja motivación, facilitando el diseño de intervenciones más efectivas."
+            },
+            {
+                type: "vf",
+                instruction: "Seleccione Verdadero o Falso",
+                question: "4. Una campaña que utiliza testimonios reales de víctimas apela principalmente a la motivación emocional del modelo COM-B.",
+                options: [
+                    {t: "Verdadero", c: true},
+                    {t: "Falso", c: false}
+                ],
+                feedback: "Este tipo de estrategias moviliza emociones que influyen en la motivación automática para el cambio."
+            },
+            {
+                type: "ms",
+                instruction: "Seleccione la respuesta correcta",
+                question: "5. ¿Cómo contribuye el modelo de conciencia situacional al diseño de campañas de seguridad vial?",
+                options: [
+                    {t: "a) Eliminando la necesidad de formación en los actores viales.", c: false},
+                    {t: "b) Centrando las campañas únicamente en sanciones por infracciones.", c: false},
+                    {t: "c) Sustituyendo las señales de tránsito por simulaciones virtuales.", c: false},
+                    {t: "d) Ayudando a entrenar la percepción, comprensión y anticipación de riesgos en la vía.", c: true}
+                ],
+                feedback: "El modelo de conciencia situacional permite diseñar campañas que fortalecen la capacidad de los actores viales para identificar, comprender y anticipar situaciones de riesgo antes de que ocurran."
+            },
+            {
+                type: "ms",
+                instruction: "Caso práctico - Analice la situación y seleccione",
+                case: "Zona escolar: un colegio instala pasos peatonales 3D frente a su entrada principal. Los conductores reducen la velocidad automáticamente al percibirlos como un obstáculo.",
+                question: "6. ¿Qué teoría explica esta intervención?",
+                options: [
+                    {t: "a) Teoría del aprendizaje social.", c: false},
+                    {t: "b) Teoría de los nudges.", c: true},
+                    {t: "c) Teoría de la disonancia cognitiva.", c: false},
+                    {t: "d) Modelo de conciencia situacional.", c: false}
+                ],
+                feedback: "La teoría de los nudges propone modificar el entorno o la arquitectura de elección para influir en el comportamiento de las personas sin recurrir a la coerción directa."
+            },
+            {
+                type: "ms",
+                instruction: "Caso práctico - Analice la situación y seleccione",
+                case: "Transporte de carga: una campaña dirigida a conductores de camiones muestra que “el 85 % de transportadores ya usa cinturón de seguridad”.",
+                question: "7. ¿Qué principio de persuasión se utiliza en esta campaña?",
+                options: [
+                    {t: "a) Autoridad.", c: false},
+                    {t: "b) Escasez.", c: false},
+                    {t: "c) Prueba social.", c: true},
+                    {t: "d) Reciprocidad.", c: false}
+                ],
+                feedback: "La prueba social influye en el comportamiento al mostrar que una conducta es común y aceptada dentro de un grupo, favoreciendo que otras personas la adopten."
+            },
+            {
+                type: "ms",
+                instruction: "Caso práctico - Analice la situación y seleccione",
+                case: "Motociclistas: en una ciudad, se entregan cascos gratuitos homologados en barrios populares.",
+                question: "8. ¿Qué componente del modelo COM-B se está fortaleciendo con esta intervención?",
+                options: [
+                    {t: "a) La capacidad.", c: false},
+                    {t: "b) La oportunidad.", c: true},
+                    {t: "c) La motivación.", c: false},
+                    {t: "d) La percepción del riesgo.", c: false}
+                ],
+                feedback: "La entrega de cascos facilita el acceso a los recursos necesarios para adoptar un comportamiento seguro, fortaleciendo la oportunidad dentro del modelo COM-B."
+            },
+            {
+                type: "ms",
+                instruction: "Caso práctico - Analice la situación y seleccione",
+                case: "Ciclistas: una campaña promueve el uso de chalecos reflectivos con diseños atractivos para jóvenes.",
+                question: "9. ¿Qué principio de persuasión y qué componente del modelo COM-B se evidencian cuando se entrega un elemento útil y atractivo para promover un comportamiento seguro?",
+                options: [
+                    {t: "a) Reciprocidad y motivación.", c: true},
+                    {t: "b) Autoridad y capacidad.", c: false},
+                    {t: "c) Escasez y oportunidad.", c: false},
+                    {t: "d) Prueba social y capacidad.", c: false}
+                ],
+                feedback: "La reciprocidad se activa al ofrecer un beneficio o elemento útil, mientras que la motivación aumenta cuando el comportamiento seguro se percibe como más atractivo o deseable."
+            },
+            {
+                type: "ms",
+                instruction: "Caso práctico - Analice la situación y seleccione",
+                case: "Peatones distraídos: un municipio instala luces LED en el suelo de los pasos peatonales para captar la atención de peatones que usan el celular.",
+                question: "10. ¿Qué modelo fundamenta esta medida?",
+                options: [
+                    {t: "a) Teoría del aprendizaje social.", c: false},
+                    {t: "b) Modelo de conciencia situacional.", c: true},
+                    {t: "c) Modelo COM-B.", c: false},
+                    {t: "d) Teoría de la prueba social.", c: false}
+                ],
+                feedback: "La medida busca mejorar la percepción del entorno y ayudar a los peatones a identificar oportunamente riesgos en la vía, fortaleciendo la conciencia situacional."
+            },
+            {
+                type: "ms",
+                instruction: "Caso práctico - Analice la situación y seleccione",
+                case: "Transporte férreo: en cruces con ferrocarril, se instalan alarmas sonoras y visuales reforzadas.",
+                question: "11. ¿Qué estrategia busca contrarrestar la adaptación sensorial en esta situación?",
+                options: [
+                    {t: "a) El uso exclusivo de señales estáticas.", c: false},
+                    {t: "b) La reducción de estímulos en el entorno vial.", c: false},
+                    {t: "c) El empleo de estímulos multisensoriales para mantener la atención.", c: true},
+                    {t: "d) La eliminación de señales auditivas para evitar distracciones.", c: false}
+                ],
+                feedback: "La combinación de estímulos visuales y sonoros ayuda a mantener la atención de los usuarios viales y disminuye el riesgo de habituación o adaptación sensorial."
+            },
+            {
+                type: "ms",
+                instruction: "Caso práctico - Analice la situación y seleccione",
+                case: "Conductores jóvenes: una campaña en redes sociales muestra testimonios de víctimas de accidentes por exceso de velocidad.",
+                question: "12. ¿Qué teorías se integran en esta campaña?",
+                options: [
+                    {t: "a) Teoría de los nudges y aprendizaje social.", c: false},
+                    {t: "b) TPB y modelo COM-B.", c: true},
+                    {t: "c) Modelo de conciencia situacional y reciprocidad.", c: false},
+                    {t: "d) Prueba social y adaptación sensorial.", c: false}
+                ],
+                feedback: "La campaña busca modificar actitudes frente al exceso de velocidad al mostrar sus consecuencias, mientras fortalece la motivación emocional para adoptar conductas más seguras."
+            },
+            {
+                type: "ms",
+                instruction: "Caso práctico - Analice la situación y seleccione",
+                case: "Personas con discapacidad: se diseñan pasos peatonales sonoros para personas con discapacidad visual.",
+                question: "13. ¿Qué componente del modelo COM-B se fortalece con esta medida?",
+                options: [
+                    {t: "a) La capacidad.", c: true},
+                    {t: "b) La motivación.", c: false},
+                    {t: "c) La oportunidad.", c: false},
+                    {t: "d) La persuasión social.", c: false}
+                ],
+                feedback: "Los pasos peatonales sonoros proporcionan herramientas que facilitan a las personas con discapacidad visual realizar de manera segura la acción de cruzar la vía."
+            },
+            {
+                type: "ms",
+                instruction: "Caso práctico - Analice la situación y seleccione",
+                case: "Transporte público: una campaña promueve que los usuarios feliciten a conductores de bus que respetan las normas.",
+                question: "14. ¿Qué principio de persuasión se aplica en esta estrategia?",
+                options: [
+                    {t: "a) Escasez.", c: false},
+                    {t: "b) Reciprocidad.", c: true},
+                    {t: "c) Autoridad.", c: false},
+                    {t: "d) Prueba social.", c: false}
+                ],
+                feedback: "El reconocimiento social funciona como una forma de reciprocidad que fortalece y motiva la repetición de comportamientos positivos en la conducción."
+            },
+            {
+                type: "ms",
+                instruction: "Caso práctico - Analice la situación y seleccione",
+                case: "Entorno urbano mixto: en una avenida concurrida, se colocan paneles dinámicos que indican la velocidad de cada vehículo y mensajes como “Reduce la velocidad, salva vidas”.",
+                question: "15. ¿Qué combinación de modelos o enfoques se observa en esta intervención?",
+                options: [
+                    {t: "a) Aprendizaje social, reciprocidad y capacidad.", c: false},
+                    {t: "b) TPB, escasez y oportunidad.", c: false},
+                    {t: "c) Adaptación sensorial, autoridad y motivación.", c: false},
+                    {t: "d) Nudges, persuasión y conciencia situacional.", c: true}
+                ],
+                feedback: "La intervención modifica el entorno para influir en la conducta, utiliza mensajes persuasivos y proporciona información inmediata que ayuda a los conductores a reconocer y anticipar riesgos."
+            }
+        ];
+
+        let currentIdx = 0;
+        let score = 0;
+        const totalPoints = quizData.length;
+
+        function startQuiz() {
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('screen-quiz').classList.remove('hidden');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = quizData[currentIdx];
+            
+            document.getElementById('q-number').innerText = `PREGUNTA ${currentIdx + 1}/${quizData.length}`;
+            document.getElementById('progress-fill').style.width = `${((currentIdx + 1)/quizData.length)*100}%`;
+            document.getElementById('q-instruction').innerText = q.instruction;
+            document.getElementById('feedback-box').classList.add('hidden');
+            document.getElementById('warning-box').classList.add('hidden');
+            document.getElementById('btn-validate').classList.remove('hidden');
+
+            const caseBox = document.getElementById('case-box');
+            if (q.case) {
+                document.getElementById('case-text').innerText = q.case;
+                caseBox.classList.remove('hidden');
+            } else {
+                caseBox.classList.add('hidden');
+            }
+
+            const optContainer = document.getElementById('options-container');
+            optContainer.className = "space-y-3";
+            document.getElementById('q-text').innerText = q.question;
+            setupSelectionOptions(q, optContainer);
+        }
+
+        function setupSelectionOptions(q, container) {
+            container.innerHTML = '';
+            q.options.forEach((opt, i) => {
+                const d = document.createElement('div');
+                d.className = "option-card flex items-center p-4 rounded-xl mb-2 text-base";
+                d.innerHTML = `
+                    <input type="radio" name="ans" id="o${i}" value="${i}" class="w-5 h-5 accent-[#27728F]">
+                    <label for="o${i}" class="ml-4 w-full cursor-pointer font-medium text-slate-700">${opt.t}</label>
+                `;
+                d.onclick = () => {
+                    document.getElementById('warning-box').classList.add('hidden');
+                    document.querySelectorAll('.option-card').forEach(el => el.classList.remove('selected'));
+                    d.classList.add('selected');
+                    d.querySelector('input').checked = true;
+                };
+                container.appendChild(d);
+            });
+        }
+
+        function validateAnswer() {
+            const q = quizData[currentIdx];
+            let isCorrect = true;
+
+            const selectedInput = document.querySelector('input[name="ans"]:checked');
+            if (!selectedInput) {
+                document.getElementById('warning-box').classList.remove('hidden');
+                return;
+            }
+
+            document.getElementById('warning-box').classList.add('hidden');
+            
+            const chosenVal = parseInt(selectedInput.value);
+            q.userAnswer = chosenVal; 
+
+            isCorrect = q.options[chosenVal].c;
+            if (isCorrect) {
+                score++;
+            }
+
+            document.querySelectorAll('.option-card').forEach(el => el.classList.add('locked'));
+
+            const fBox = document.getElementById('feedback-box');
+            fBox.classList.remove('hidden', 'bg-green-50', 'border-green-200', 'bg-red-50', 'border-red-200');
+            document.getElementById('btn-validate').classList.add('hidden');
+
+            const fTitle = document.getElementById('feedback-title');
+            if (isCorrect) {
+                fTitle.innerText = "¡Correcto!";
+                fTitle.className = "font-bold text-lg text-green-700";
+                fBox.classList.add('bg-green-50', 'border-green-200');
+            } else {
+                fTitle.innerText = "Incorrecto";
+                fTitle.className = "font-bold text-lg text-red-700";
+                fBox.classList.add('bg-red-50', 'border-red-200');
+            }
+
+            document.getElementById('feedback-body').innerHTML = `<strong>Realimentación:</strong> ${q.feedback}`;
+        }
+
+        function nextStep() {
+            currentIdx++;
+            if (currentIdx < quizData.length) {
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('screen-quiz').classList.add('hidden');
+            document.getElementById('screen-results').classList.remove('hidden');
+            
+            const percent = Math.round((score / totalPoints) * 100);
+            const circumference = 596;
+            const offset = circumference - (percent / 100) * circumference;
+            
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    document.getElementById('final-circle').style.strokeDashoffset = offset;
+                }, 50);
+            });
+            
+            let count = 0;
+            const timer = setInterval(() => {
+                if (count >= percent) {
+                    document.getElementById('result-percent').innerText = percent;
+                    clearInterval(timer);
+                } else {
+                    count++;
+                    document.getElementById('result-percent').innerText = count;
+                }
+            }, 15);
+
+            document.getElementById('result-score').innerText = `Puntaje Final: ${score} de ${totalPoints} puntos`;
+            const msg = document.getElementById('result-msg');
+            
+            if (percent === 100) {
+                msg.innerText = "¡Excelente! Has completado el repaso final con una puntuación perfecta. Demuestras un dominio excepcional de los marcos teóricos de la psicología del tránsito, modelos cognitivos e intervenciones de infraestructura urbana.";
+            } else if (percent >= 70) {
+                msg.innerText = "¡Muy buen trabajo! Has demostrado una comprensión sólida de los contenidos y habilidades analíticas para resolver con éxito los casos prácticos planteados.";
+            } else {
+                msg.innerText = "Te sugerimos realizar una nueva lectura de los contenidos del curso, haciendo especial énfasis en el modelo COM-B, los principios de persuasión y la teoría de los nudges aplicada a entornos mixtos.";
+            }
+
+            buildSummaryCards();
+        }
+
+        function buildSummaryCards() {
+            const container = document.getElementById('summary-cards');
+            container.innerHTML = '';
+
+            quizData.forEach((q, idx) => {
+                const card = document.createElement('div');
+                card.className = "p-6 rounded-2xl border-l-8 bg-slate-50 shadow-sm transition-all duration-300 animate__animated animate__fadeInUp";
+                
+                let isFullyCorrect = false;
+                let statusBadge = '';
+                let userValHTML = '';
+                let correctValHTML = '';
+
+                const userAnsIdx = q.userAnswer;
+                const correctAnsIdx = q.options.findIndex(o => o.c);
+                isFullyCorrect = (userAnsIdx === correctAnsIdx);
+
+                if (isFullyCorrect) {
+                    card.classList.add('border-green-500');
+                    statusBadge = '<span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full">Correcto</span>';
+                    userValHTML = `<span class="text-green-700 font-medium">${q.options[userAnsIdx].t}</span>`;
+                } else {
+                    card.classList.add('border-red-500');
+                    statusBadge = '<span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full">Incorrecto</span>';
+                    userValHTML = `<span class="text-red-600 font-semibold">${userAnsIdx !== undefined && userAnsIdx !== null ? q.options[userAnsIdx].t : '[Sin responder]'}</span>`;
+                    correctValHTML = `
+                        <div class="text-sm mt-1">
+                            <span class="font-semibold text-slate-500">Respuesta correcta esperada:</span> 
+                            <span class="text-green-700 font-medium">${q.options[correctAnsIdx].t}</span>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-sm font-bold text-slate-400 uppercase tracking-wider">Pregunta ${idx + 1}</span>
+                        ${statusBadge}
+                    </div>
+                    <div class="font-semibold text-slate-800 mb-3 text-base">${q.question}</div>
+                    
+                    <div class="bg-white p-4 rounded-xl border border-slate-100 space-y-1.5 mb-3 shadow-inner">
+                        <div class="text-sm"><span class="font-semibold text-slate-600">Tu respuesta:</span> ${userValHTML}</div>
+                        ${correctValHTML}
+                    </div>
+                    
+                    <div class="text-sm text-slate-600 bg-slate-100 p-3 rounded-xl border border-slate-200">
+                        <strong class="text-custom">Explicación académica:</strong> ${q.feedback}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
