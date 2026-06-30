@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación de Campañas de Seguridad Vial</title>
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- GSAP para Animaciones de Alto Rendimiento -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f4f7f9 0%, #e9eff2 100%);
+        }
+        /* Glassmorphism en Tema Claro */
+        .glass-container-light {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px rgba(39, 114, 143, 0.12) solid;
+            box-shadow: 0 30px 70px rgba(39, 114, 143, 0.08);
+        }
+        /* Color personalizado para elementos dinámicos */
+        .custom-bg { background-color: #27728F; }
+        .custom-text { color: #27728F; }
+        .custom-border { border-color: #27728F; }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex items-center justify-center text-slate-700 p-4 md:p-8">
+
+    <!-- Contenedor Principal Centrado (Sin scroll de pantalla) -->
+    <div class="w-full max-w-4xl h-full max-h-[650px] flex flex-col justify-between relative z-10 glass-container-light rounded-3xl p-6 md:p-10">
+        
+        <!-- Parte Superior: Instrucción y Título -->
+        <div>
+            <!-- Instrucción Flotante/Badge Superior -->
+            <div class="floating-instruction inline-flex items-center gap-2 mb-6 bg-[#27728F]/10 border border-[#27728F]/20 px-4 py-2 rounded-full text-xs text-[#27728F] font-medium tracking-wide shadow-sm">
+                <span class="w-2 h-2 rounded-full bg-[#27728F] animate-pulse"></span>
+                Haga clic sobre los botones para ampliar la informacion
+            </div>
+
+            <!-- Encabezado -->
+            <header class="text-left mb-2">
+                <p class="text-xs font-semibold tracking-widest text-[#27728F] uppercase mb-1">Módulos de Aprendizaje</p>
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Seguridad Vial & Comportamiento</h1>
+            </header>
+        </div>
+
+        <!-- Contenedor del Carrusel (4 Sliders) -->
+        <div class="relative flex-1 flex items-center overflow-hidden my-4">
+            <div id="carouselWrapper" class="flex w-full h-full transition-transform duration-500 ease-out">
+                
+                <!-- Slider 1 -->
+                <div class="w-full shrink-0 h-full flex flex-col justify-center text-left pr-4">
+                    <div class="text-xs font-mono text-[#27728F] mb-3 font-bold tracking-wider">01 / ENFOQUE INTEGRAL</div>
+                    <p class="text-sm md:text-base leading-relaxed text-slate-600 max-w-3xl">
+                        Evaluar la efectividad de las campañas de seguridad vial es un paso fundamental para garantizar que las intervenciones logren sus objetivos y contribuyan a mejorar la seguridad en las vías. Este proceso requiere un enfoque integral que combine métricas cuantitativas y cualitativas, permitiendo una evaluación completa del impacto de las campañas en los diferentes actores viales, como conductores, motociclistas, ciclistas y peatones.
+                    </p>
+                </div>
+
+                <!-- Slider 2 -->
+                <div class="w-full shrink-0 h-full flex flex-col justify-center text-left pr-4">
+                    <div class="text-xs font-mono text-[#27728F] mb-3 font-bold tracking-wider">02 / MÉTRICAS CUALITATIVAS</div>
+                    <p class="text-sm md:text-base leading-relaxed text-slate-600 max-w-3xl">
+                        Sin embargo, los datos cuantitativos no siempre son suficientes para capturar la complejidad de los comportamientos viales. Por ello, es crucial complementarlos con métricas cualitativas que proporcionen información sobre las percepciones, actitudes y valores de los actores viales hacia las campañas y las prácticas de seguridad. Langer et al. (2008) destacan que la percepción del riesgo es un factor crítico en el cambio de comportamiento. Las campañas que logran crear una conciencia emocional sobre los riesgos asociados con el tránsito suelen ser más efectivas para modificar actitudes y conductas. Por ejemplo, a través de entrevistas o grupos focales, se puede descubrir que los conductores entienden los riesgos de no usar el cinturón de seguridad, pero priorizan la comodidad o subestiman la probabilidad de un accidente, lo que indica áreas donde las campañas pueden ser ajustadas para abordar estas barreras.
+                    </p>
+                </div>
+
+                <!-- Slider 3 -->
+                <div class="w-full shrink-0 h-full flex flex-col justify-center text-left pr-4">
+                    <div class="text-xs font-mono text-[#27728F] mb-3 font-bold tracking-wider">03 / FORMATO DE COMUNICACIÓN</div>
+                    <p class="text-sm md:text-base leading-relaxed text-slate-600 max-w-3xl">
+                        Además, el formato de la comunicación desempeña un papel crucial en el éxito de una campaña. Según Durlauf y Blume (2008), diferentes medios tienen impactos variados dependiendo de las características demográficas y psicográficas de la población objetivo. Los medios tradicionales, como la televisión, los carteles y la radio, son efectivos para llegar a audiencias amplias, especialmente en contextos rurales o entre poblaciones mayores.
+                    </p>
+                </div>
+
+                <!-- Slider 4 -->
+                <div class="w-full shrink-0 h-full flex flex-col justify-center text-left pr-4">
+                    <div class="text-xs font-mono text-[#27728F] mb-3 font-bold tracking-wider">04 / PSICOLOGÍA CONDUCTUAL</div>
+                    <p class="text-sm md:text-base leading-relaxed text-slate-600 max-w-3xl">
+                        La psicología del comportamiento ofrece fundamentos clave para diseñar campañas efectivas. Según Langer et al. (2008), las campañas que combinan datos objetivos con elementos emocionales tienen mayor probabilidad de influir en el comportamiento. Este enfoque puede incluir narrativas que humanicen los riesgos del tránsito, como testimonios de víctimas o simulaciones de situaciones de peligro.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Parte Inferior: Botones de Navegación y Progreso (Alineados a la izquierda) -->
+        <div class="flex items-center gap-4 pt-4 border-t border-slate-200 justify-start">
+            <button id="prevBtn" class="w-12 h-12 rounded-full border border-slate-300 flex items-center justify-center bg-white/80 hover:bg-[#27728F] hover:border-[#27728F] hover:text-white group transition-all duration-300 disabled:opacity-25 disabled:hover:bg-white/80 disabled:hover:text-slate-700 disabled:hover:border-slate-300 cursor-pointer" aria-label="Anterior">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-slate-700 group-hover:text-white transition-colors duration-300">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+            </button>
+            <button id="nextBtn" class="w-12 h-12 rounded-full border border-slate-300 flex items-center justify-center bg-white/80 hover:bg-[#27728F] hover:border-[#27728F] hover:text-white group transition-all duration-300 disabled:opacity-25 disabled:hover:bg-white/80 disabled:hover:text-slate-700 disabled:hover:border-slate-300 cursor-pointer" aria-label="Siguiente">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-slate-700 group-hover:text-white transition-colors duration-300">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </button>
+            
+            <!-- Indicador de Progreso Lineal -->
+            <div class="h-[2px] bg-slate-200 w-32 rounded-full overflow-hidden ml-4 hidden sm:block">
+                <div id="progressBar" class="h-full bg-[#27728F] w-1/4 transition-all duration-300 ease-out"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script de Control y Animación -->
+    <script>
+        const wrapper = document.getElementById('carouselWrapper');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressBar = document.getElementById('progressBar');
+        
+        let currentIndex = 0;
+        const totalSlides = 4;
+
+        // Animación de entrada inicial con GSAP
+        window.addEventListener('DOMContentLoaded', () => {
+            gsap.from('.glass-container-light', { opacity: 0, scale: 0.96, duration: 0.8, ease: 'power3.out' });
+            gsap.from('.floating-instruction', { opacity: 0, y: -10, duration: 0.5, delay: 0.2 });
+            gsap.from('header', { opacity: 0, x: -20, duration: 0.5, delay: 0.3 });
+            updateCarousel();
+        });
+
+        function updateCarousel() {
+            wrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
+            
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === totalSlides - 1;
+
+            const progressPercentage = ((currentIndex + 1) / totalSlides) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+
+            // Transición interna del texto
+            gsap.fromTo(wrapper.children[currentIndex].querySelector('p'), 
+                { opacity: 0, x: 10 }, 
+                { opacity: 1, x: 0, duration: 0.4, ease: 'power2.out' }
+            );
+        }
+
+        nextBtn.addEventListener('click', () => {
+            if (currentIndex < totalSlides - 1) {
+                currentIndex++;
+                updateCarousel();
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCarousel();
+            }
+        });
+    </script>
+</body>
+</html>
