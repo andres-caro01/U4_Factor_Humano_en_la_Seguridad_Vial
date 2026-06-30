@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarjetas Interactivas - Conciencia Situacional</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #eef5fc 0%, #d2e4f9 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            color: #1e3a8a;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            padding: 1rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 30px rgba(30, 58, 138, 0.08), 
+                        inset 0 1px 2px rgba(255, 255, 255, 0.5);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 380px;
+        }
+
+        .card-1 .card-bg {
+            background: linear-gradient(135deg, rgba(30, 144, 255, 0.15), rgba(0, 51, 153, 0.05)),
+                        radial-gradient(circle at 80% 20%, rgba(26, 115, 232, 0.2) 0%, transparent 50%),
+                        radial-gradient(circle at 20% 80%, rgba(139, 195, 74, 0.15) 0%, transparent 40%);
+        }
+
+        .card-2 .card-bg {
+            background: linear-gradient(135deg, rgba(0, 180, 216, 0.15), rgba(3, 4, 94, 0.05)),
+                        radial-gradient(circle at 10% 30%, rgba(0, 119, 182, 0.2) 0%, transparent 60%),
+                        radial-gradient(circle at 90% 90%, rgba(72, 202, 228, 0.25) 0%, transparent 50%);
+        }
+
+        .card-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+            transition: transform 0.6s ease;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 2;
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .card-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.3;
+            margin-bottom: 1rem;
+        }
+
+        .card-hint {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: auto;
+        }
+
+        .card-hint::after {
+            content: '→';
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(30, 58, 138, 0.15);
+            border-color: rgba(37, 99, 235, 0.3);
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        .card:hover .card-bg {
+            transform: scale(1.08);
+        }
+
+        .card:hover .card-hint::after {
+            transform: translateX(5px);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: #ffffff;
+            border-radius: 28px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            padding: 3rem 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            transform: scale(0.92);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: scale(1);
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            color: #64748b;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close-btn:hover, .modal-close-btn:focus {
+            background: #e2e8f0;
+            color: #0f172a;
+            outline: 2px solid #2563eb;
+            outline-offset: 2px;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 1.5rem;
+            padding-right: 2rem;
+            line-height: 1.3;
+            border-left: 5px solid #2563eb;
+            padding-left: 12px;
+        }
+
+        .modal-body {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #334155;
+        }
+
+        .modal-body p {
+            margin-bottom: 1.25rem;
+        }
+        
+        .modal-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-box::-webkit-scrollbar {
+            width: 8px;
+        }
+        .modal-box::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 0 28px 28px 0;
+        }
+        .modal-box::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .modal-box::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div style="position: absolute; top: 1.5rem; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(37, 99, 235, 0.2); color: #2563eb; padding: 0.5rem 1.25rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600; box-shadow: 0 4px 15px rgba(30, 58, 138, 0.05); pointer-events: none; z-index: 10; animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; display: flex; align-items: center; gap: 0.5rem;">
+    <span>💡</span> Haga clic sobre las tarjetas para ampliar la información.
+</div>
+        <div class="card card-1" onclick="openModal(1)" role="button" tabindex="0" id="card-1">
+            <div class="card-bg"></div>
+            <div class="card-content">
+                <h2 class="card-title">1.5.1 Fundamentos del modelo</h2>
+                <div class="card-hint">Ver contenido completo</div>
+            </div>
+        </div>
+
+        <div class="card card-2" onclick="openModal(2)" role="button" tabindex="0" id="card-2">
+            <div class="card-bg"></div>
+            <div class="card-content">
+                <h2 class="card-title">1.5.2 Aplicación en la seguridad vial</h2>
+                <div class="card-hint">Ver contenido completo</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <button class="modal-close-btn" id="closeBtn" onclick="closeModalDirect()" aria-label="Cerrar ventana">✕</button>
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const data = {
+            1: {
+                title: "1.5.1 Fundamentos del modelo",
+                content: `
+                    <p><b>Percepción del entorno:</b> es el primer nivel del modelo y se Percepción del entorno: es el primer nivel del modelo y se refiere a la capacidad de detectar y recopilar información relevante sobre el entorno vial, como señales de tránsito, la posición de otros vehículos y las condiciones climáticas. Según Endsley (2021), una percepción precisa es esencial para identificar riesgos potenciales.</p>
+                    <p><b>Comprensión de la situación:</b> este nivel implica procesar la información percibida para determinar su significado e importancia. La comprensión requiere identificar las relaciones entre los elementos del entorno y evaluar cómo estos afectan la seguridad.</p>
+                    <p><b>Anticipación de eventos futuros:</b> es el nivel más avanzado y consiste en prever lo que podría suceder en función de la información percibida y comprendida. (Endsley, 1995) argumenta que la anticipación efectiva permite a los actores viales tomar decisiones preventivas en lugar de reactivas.</p>
+                `
+            },
+            2: {
+                title: "1.5.2 Aplicación en la seguridad vial",
+                content: `
+                    <p>El modelo de conciencia situación tiene aplicaciones directas en el diseño de campañas de seguridad vial y en la capacitación de conductores y otros actores viales; se debe tener en cuenta:</p>
+                    <p><b>Capacitación en percepción del entorno:</b> las campañas de seguridad vial pueden incluir simulaciones interactivas que ayuden a los conductores a mejorar su habilidad para detectar señales de riesgo. Por ejemplo, programas de realidad virtual pueden simular escenarios en los que los conductores deben identificar elementos clave, como un peatón cruzando inesperadamente o un vehículo detenido en un carril (Stanton, 2017).</p>
+                    <p><b>Fortalecimiento de la comprensión del riesgo:</b> las intervenciones educativas pueden enseñar a los actores viales a interpretar la información del entorno de manera efectiva. Por ejemplo, talleres que expliquen cómo las condiciones climáticas afectan la distancia de frenado pueden mejorar la comprensión de los riesgos asociados con conducir bajo la lluvia o en carreteras cubiertas con capas de nieve (heladas) (Endsley, 2021).</p>
+                `
+            }
+        };
+
+        const overlay = document.getElementById('modalOverlay');
+        const mTitle = document.getElementById('modalTitle');
+        const mBody = document.getElementById('modalBody');
+        const closeBtn = document.getElementById('closeBtn');
+        let activeCardSource = null;
+
+        function openModal(id) {
+            mTitle.innerText = data[id].title;
+            mBody.innerHTML = data[id].content;
+            overlay.classList.add('active');
+            closeBtn.focus();
+            activeCardSource = document.getElementById(`card-${id}`);
+        }
+
+        function closeModalDirect() {
+            overlay.classList.remove('active');
+            if (activeCardSource) {
+                activeCardSource.focus();
+            }
+        }
+
+        function closeModal(e) {
+            if (e.target === overlay) {
+                closeModalDirect();
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            const isModalActive = overlay.classList.contains('active');
+            
+            if (isModalActive) {
+                if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    closeModalDirect();
+                }
+            } else {
+                if (document.activeElement.classList.contains('card')) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        document.activeElement.click();
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
