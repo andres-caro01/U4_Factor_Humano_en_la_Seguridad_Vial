@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú de Acordeón Estilo Apple</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f5f5f7; /* Color de fondo oficial Apple */
+            color: #1d1d1f;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center; /* Centrado perfecto en pantalla */
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Contenedor Principal */
+        .wrapper {
+            width: 100%;
+            max-width: 680px;
+            position: relative;
+            animation: fadeIn 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* Instrucción Flotante estilo Apple Badge */
+        .instruction-badge {
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: #86868b;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 8px 18px;
+            border-radius: 20px;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+            position: relative;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        /* Contenedor del Acordeón con efecto translúcido frosted-glass */
+        .accordion-container {
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 18px;
+            padding: 8px 24px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .accordion-item {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .accordion-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Checkbox oculto */
+        .accordion-toggle {
+            display: none;
+        }
+
+        /* Encabezado */
+        .accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 0;
+            color: #1d1d1f;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: left; /* Alineación a la izquierda */
+            user-select: none;
+            transition: color 0.25s ease;
+        }
+
+        .accordion-header:hover {
+            color: #0071e3; /* Azul distintivo de Apple */
+        }
+
+        /* Icono de Flecha estilizado (Chevron fino) */
+        .accordion-icon {
+            width: 18px;
+            height: 18px;
+            position: relative;
+            transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .accordion-icon::before,
+        .accordion-icon::after {
+            content: '';
+            position: absolute;
+            background-color: #86868b;
+            transition: background-color 0.25s ease;
+        }
+
+        .accordion-icon::before {
+            width: 10px;
+            height: 1.5px;
+            top: 8px;
+            left: 1px;
+            transform: rotate(45deg);
+        }
+        .accordion-icon::after {
+            width: 10px;
+            height: 1.5px;
+            top: 8px;
+            right: 1px;
+            transform: rotate(-45deg);
+        }
+
+        .accordion-header:hover .accordion-icon::before,
+        .accordion-header:hover .accordion-icon::after {
+            background-color: #0071e3;
+        }
+
+        /* Contenido Oculto */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            text-align: left; /* Alineación a la izquierda */
+            transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease;
+        }
+
+        .content-inner {
+            padding-bottom: 24px;
+        }
+
+        /* Bloque de Ejemplo sutil */
+        .example-block {
+            background-color: rgba(0, 113, 227, 0.05);
+            border-left: 3px solid #0071e3;
+            padding: 12px 16px;
+            border-radius: 4px 8px 8px 4px;
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+            color: #1d1d1f;
+        }
+
+        .accordion-content ul {
+            list-style: none;
+        }
+
+        .accordion-content li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 14px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            color: #515154;
+        }
+
+        .accordion-content li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Viñeta minimalista redonda */
+        .accordion-content li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 10px;
+            width: 6px;
+            height: 6px;
+            background-color: #86868b;
+            border-radius: 50%;
+        }
+
+        .accordion-content strong {
+            color: #1d1d1f;
+            font-weight: 500;
+        }
+
+        /* Animación de Apertura mediante CSS */
+        .accordion-toggle:checked ~ .accordion-content {
+            max-height: 600px; 
+            opacity: 1;
+        }
+
+        .accordion-toggle:checked ~ .accordion-header .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 16px; }
+            .accordion-container { padding: 4px 16px; }
+            .accordion-header { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <div class="instruction-badge">
+        Haga clic sobre las flechas para ampliar la información.
+    </div>
+
+    <div class="accordion-container">
+
+        <div class="accordion-item">
+            <input type="checkbox" id="sec-a" class="accordion-toggle">
+            <label for="sec-a" class="accordion-header">
+                <span>a. Diagnóstico del comportamiento</span>
+                <div class="accordion-icon"></div>
+            </label>
+            <div class="accordion-content">
+                <div class="content-inner">
+                    <ul>
+                        <li><strong>Identificar los comportamientos inseguros más prevalentes</strong> en la población objetivo. Por ejemplo, conducir sin casco, exceder los límites de velocidad o cruzar calles fuera de los pasos peatonales.</li>
+                        <li><strong>Analizar las causas detrás de estos comportamientos:</strong> ¿Es una falta de conocimiento, motivación o percepción del riesgo?</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <input type="checkbox" id="sec-b" class="accordion-toggle">
+            <label for="sec-b" class="accordion-header">
+                <span>b. Diseño de la intervención</span>
+                <div class="accordion-icon"></div>
+            </label>
+            <div class="accordion-content">
+                <div class="content-inner">
+                    <div class="example-block">
+                        <strong>Ejemplo:</strong> colocar mensajes en carteles que digan: "El 80 % deb."
+                    </div>
+                    <ul>
+                        <li><strong>Crear un entorno que facilite la elección segura.</strong> Esto puede incluir cambios en el diseño vial, como carriles exclusivos para bicicletas o pasos peatonales elevados.</li>
+                        <li><strong>Utilizar elementos visuales atractivos y dinámicos.</strong> Por ejemplo, pintar pasos peatonales en 3D para dar la ilusión de un obstáculo y obligar a los conductores a reducir la velocidad.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <input type="checkbox" id="sec-c" class="accordion-toggle">
+            <label for="sec-c" class="accordion-header">
+                <span>c. Estrategias de comunicación</span>
+                <div class="accordion-icon"></div>
+            </label>
+            <div class="accordion-content">
+                <div class="content-inner">
+                    <ul>
+                        <li><strong>Incorporar mensajes claros y repetitivos</strong> que refuercen la seguridad. Los paneles de velocidad que alertan: "¡Reduce la velocidad, salva vidas!".</li>
+                        <li><strong>Diseñar anuncios que humanicen los riesgos</strong>, como mostrar cómo el uso del cinturón de seguridad salva vidas.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <input type="checkbox" id="sec-d" class="accordion-toggle">
+            <label for="sec-d" class="accordion-header">
+                <span>d. Monitoreo y evaluación</span>
+                <div class="accordion-icon"></div>
+            </label>
+            <div class="accordion-content">
+                <div class="content-inner">
+                    <ul>
+                        <li><strong>Establecer métricas claras para medir el impacto</strong>, como cambios en el uso del cinturón, reducción de velocidad promedio o disminución de accidentes.</li>
+                        <li><strong>Adaptar los nudges según los resultados observados.</strong> Por ejemplo, si un diseño inicial no genera el impacto esperado, se pueden ajustar los elementos visuales o cambiar los mensajes.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
