@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unidad Seguridad Vial - Interfaz Educativa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-soft: #63d2ff;
+            --secondary-soft: #27728F;
+            --bg-dark: #123543;
+            --card-surface: rgba(18, 53, 67, 0.75);
+            --text-main: #e6f3f8;
+            --transition-smooth: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Instrucción flotante sutil */
+        .instruction {
+            position: fixed;
+            top: 40px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px 30px;
+            border-radius: 30px;
+            border: 1px solid rgba(99, 210, 255, 0.3);
+            color: var(--primary-soft);
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            animation: floatAnim 4s ease-in-out infinite;
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        @keyframes floatAnim {
+            0%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(-8px);
+                opacity: 1;
+            }
+        }
+
+        .card-container {
+            display: flex;
+            gap: 50px;
+            z-index: 1;
+        }
+
+        .card {
+            width: 360px;
+            height: 480px;
+            background: var(--card-surface);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 35px;
+            text-align: left;
+        }
+
+        /* Imágenes de fondo adaptadas al diseño e infraestructura vial */
+        .card-bg-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            filter: saturate(0.4) brightness(0.3);
+            transition: var(--transition-smooth);
+            z-index: -1;
+        }
+
+        .card:hover {
+            transform: translateY(-15px);
+            border-color: rgba(99, 210, 255, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .card:hover .card-bg-img {
+            transform: scale(1.1);
+            filter: saturate(0.8) brightness(0.45);
+        }
+
+        .card h2 {
+            font-weight: 700;
+            margin: 0;
+            font-size: 1.5rem;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Ventana Emergente Estilo Suave */
+        .modal {
+            visibility: hidden;
+            opacity: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(9, 28, 35, 0.9);
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        .modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: #164152;
+            width: 85%;
+            max-width: 800px;
+            max-height: 85vh;
+            padding: 60px;
+            border-radius: 35px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+            overflow-y: auto;
+            white-space: pre-line;
+            line-height: 1.7;
+            font-weight: 300;
+            color: #d2e4ec;
+            text-align: left; /* Justificación/alineación a la izquierda */
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal h3 {
+            margin-top: 0;
+            color: var(--primary-soft);
+            font-size: 1.8rem;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.3s;
+            color: #fff;
+            font-size: 20px;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 80, 80, 0.2);
+            color: #ff5050;
+            transform: rotate(90deg);
+        }
+
+        /* Estilización de viñetas en el texto */
+        .content-text {
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Scrollbar suave */
+        .modal-content::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="instruction">haga clic sobre las tarjetas para ampliar la información</div>
+
+    <div class="card-container">
+        <div class="card" onclick="openModal('modal1')">
+            <div class="card-bg-img"
+                style="background-image: url('https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=800');">
+            </div>
+            <h2>Conocimientos Previos</h2>
+        </div>
+
+        <div class="card" onclick="openModal('modal2')">
+            <div class="card-bg-img"
+                style="background-image: url('https://images.unsplash.com/photo-1573331519317-30b24326bb9a?auto=format&fit=crop&q=80&w=800');">
+            </div>
+            <h2>Objetivos</h2>
+        </div>
+    </div>
+
+    <div id="modal1" class="modal">
+        <div class="modal-content">
+            <div class="close-btn" onclick="closeModal('modal1')">✕</div>
+            <h3>Conocimientos Previos</h3>
+            <div class="content-text">• Factores que generan siniestralidad vial.
+• Características y necesidades de los usuarios del sistema de movilidad vial.
+• Seguridad vial en el diseño</div>
+        </div>
+    </div>
+
+    <div id="modal2" class="modal">
+        <div class="modal-content">
+            <div class="close-btn" onclick="closeModal('modal2')">✕</div>
+            <h3>Objetivos</h3>
+            <div class="content-text">• Clasificar los elementos clave que deben incluirse en las campañas de educación vial, considerando el comportamiento de los diferentes actores viales, para promover una cultura de seguridad efectiva.
+
+• Valorar métodos para evaluar el impacto de las campañas de seguridad vial, analizando su efectividad en la modificación de comportamientos y la reducción de accidentes.</div>
+        </div>
+    </div>
+
+    <script>
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === "Escape") {
+                const activeModal = document.querySelector('.modal.active');
+                if (activeModal) closeModal(activeModal.id);
+            }
+        });
+
+        window.onclick = function (e) {
+            if (e.target.classList.contains('modal')) {
+                closeModal(e.target.id);
+            }
+        }
+    </script>
+
+</body>
+
+</html>
