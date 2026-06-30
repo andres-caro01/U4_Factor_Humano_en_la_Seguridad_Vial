@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repaso: Teorías y Modelos en Campañas Viales</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <style>
+        :root {
+            --primary: #27728F;
+            --primary-dark: #1C546B;
+            --primary-light: #EBF1F4;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            font-size: 17px;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f7f9;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #main-container {
+            width: 95%;
+            max-width: 1000px;
+            height: 870px; 
+            background: white;
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(39, 114, 143, 0.2);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2.5rem 3.5rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) #f1f1f1;
+        }
+
+        .text-custom { color: var(--primary); }
+        .bg-custom { background-color: var(--primary); }
+
+        .btn-action {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 3.5rem;
+            border-radius: 99px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+        }
+        .btn-action:hover:not(:disabled) {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(39, 114, 143, 0.3);
+        }
+
+        .option-card {
+            transition: all 0.2s ease;
+            border: 2px solid #f1f5f9;
+            cursor: pointer;
+        }
+        
+        .option-card.selected {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+        }
+
+        .option-card.locked { pointer-events: none; }
+
+        .circle-bar { 
+            fill: none; 
+            stroke: var(--primary); 
+            stroke-width: 10; 
+            stroke-linecap: round; 
+            transition: stroke-dashoffset 1.5s ease-out;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="main-container">
+        
+        <!-- PANTALLA INICIAL -->
+        <div id="screen-start" class="scroll-content flex flex-col items-center justify-center text-center animate__animated animate__fadeIn">
+            <span class="px-4 py-1.5 bg-[#27728F]/10 text-custom font-bold text-xs uppercase tracking-widest rounded-full mb-4">Sección de Repaso</span>
+            <h1 class="text-4xl font-bold text-custom mb-3 leading-tight">Teorías y Modelos Aplicados al Diseño de Campañas</h1>
+            <p class="text-2xl mb-5 text-slate-600 font-semibold">Arquitectura de Elección y Factores Sociales</p>
+            <p class="mb-10 max-w-2xl text-slate-500 text-lg">Pone a prueba tus conocimientos sobre la teoría de los nudges, la teoría del comportamiento planificado y cómo las normas sociales moldean conductas viales más seguras.</p>
+            <button onclick="startQuiz()" class="btn-action text-xl shadow-lg">INICIAR REPASO</button>
+        </div>
+
+        <!-- PANTALLA DE CUESTIONARIO -->
+        <div id="screen-quiz" class="hidden flex flex-col h-full">
+            <div class="px-14 pt-8 flex justify-between items-center bg-white z-10">
+                <span id="q-number" class="font-bold text-custom text-sm tracking-widest uppercase"></span>
+                <div class="w-48 h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div id="progress-fill" class="h-full bg-custom transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="scroll-content animate__animated animate__fadeIn" id="quiz-body">
+                <p id="q-instruction" class="text-custom font-bold italic mb-2 text-base"></p>
+                
+                <!-- Caja de Contexto o Caso (Opcional) -->
+                <div id="case-box" class="hidden mb-5 p-5 bg-amber-50/60 border-l-4 border-amber-500 text-slate-700 text-base rounded-r-2xl shadow-sm animate__animated animate__fadeIn">
+                    <div class="flex items-center space-x-2 text-amber-800 font-bold mb-1.5">
+                        <span>📋</span>
+                        <span class="text-sm tracking-wide uppercase">Contexto</span>
+                    </div>
+                    <p id="case-text" class="italic leading-relaxed"></p>
+                </div>
+                
+                <!-- Enunciado de la Pregunta -->
+                <div id="question-text-container" class="mb-6 leading-relaxed text-slate-800">
+                    <h2 id="q-text" class="text-lg font-semibold leading-snug text-slate-800 border-l-4 border-[#27728F] pl-4 py-1 bg-slate-50"></h2>
+                </div>
+
+                <!-- Contenedor para Opción Múltiple / VF -->
+                <div id="options-container" class="space-y-3"></div>
+
+                <!-- Alerta Flotante Interna de Validación -->
+                <div id="warning-box" class="hidden mt-4 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 font-medium text-sm flex items-center justify-center animate__animated animate__shakeX">
+                    ⚠️ Por favor, responde la pregunta seleccionando una opción antes de validar.
+                </div>
+
+                <!-- Caja de Retroalimentación -->
+                <div id="feedback-box" class="hidden mt-6 p-5 rounded-2xl border-2 animate__animated animate__fadeInUp text-base">
+                    <p id="feedback-title" class="font-bold text-lg mb-1"></p>
+                    <div id="feedback-body" class="leading-relaxed text-slate-700"></div>
+                    <button id="btn-continue" onclick="nextStep()" class="mt-4 bg-slate-800 text-white px-8 py-2 rounded-xl hover:bg-black transition-all font-bold text-sm">Continuar</button>
+                </div>
+
+                <button id="btn-validate" onclick="validateAnswer()" class="btn-action w-full mt-6 shadow-xl text-lg">Validar Respuesta</button>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE RESULTADOS -->
+        <div id="screen-results" class="hidden scroll-content flex flex-col items-center">
+            <h2 class="text-4xl font-bold mb-2 text-custom text-center">Repaso Finalizado</h2>
+            
+            <div class="flex flex-col items-center justify-center my-4">
+                <div class="relative flex items-center justify-center">
+                    <svg class="w-56 h-56 -rotate-90">
+                        <circle cx="112" cy="112" r="95" stroke="#f1f5f9" stroke-width="10" fill="none"></circle>
+                        <circle id="final-circle" cx="112" cy="112" r="95" class="circle-bar" stroke-dasharray="596" stroke-dashoffset="596"></circle>
+                    </svg>
+                    <div class="absolute text-5xl font-black text-slate-800"><span id="result-percent">0</span>%</div>
+                </div>
+            </div>
+
+            <p id="result-score" class="text-xl font-bold mb-4 text-slate-700 text-center"></p>
+            <div id="result-msg" class="w-full max-w-2xl mb-6 p-5 bg-slate-50 rounded-2xl italic text-slate-600 text-base text-center"></div>
+            
+            <button onclick="location.reload()" class="btn-action mb-8">Reiniciar Repaso</button>
+
+            <!-- Contenedor del compilado detallado de preguntas y correcciones -->
+            <div class="w-full max-w-3xl border-t border-slate-200 pt-8 mt-4 text-left">
+                <h3 class="text-2xl font-bold text-custom mb-6 text-center">Revisión académica detallada</h3>
+                <div id="summary-cards" class="space-y-6">
+                    <!-- Se genera dinámicamente desde JavaScript -->
+                </div>
+            </div>
+
+            <button onclick="location.reload()" class="btn-action mt-10 mb-6">Reiniciar Repaso</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                type: "ms",
+                instruction: "Seleccione la respuesta correcta",
+                question: "1. ¿Cuál es el objetivo principal de la teoría de los nudges en la seguridad vial?",
+                options: [
+                    {t: "a) Imponer sanciones más estrictas a los infractores.", c: false},
+                    {t: "b) Influir en el comportamiento mediante la restricción de opciones.", c: false},
+                    {t: "c) Influir en las decisiones de manera sutil, facilitando elecciones seguras sin restringir la libertad.", c: true},
+                    {t: "d) Sustituir la educación vial por medidas coercitivas.", c: false}
+                ],
+                feedback: "Los nudges buscan modificar la arquitectura de elección para que la opción más segura sea la más evidente, sin imponer coerción."
+            },
+            {
+                type: "vf",
+                instruction: "Seleccione Verdadero o Falso",
+                question: "2. Los nudges se consideran efectivos porque eliminan todas las demás opciones de elección.",
+                options: [
+                    {t: "Verdadero", c: false},
+                    {t: "Falso", c: true}
+                ],
+                feedback: "La efectividad de los nudges radica en que mantienen la libertad de elección, pero hacen más visibles o accesibles las alternativas seguras."
+            },
+            {
+                type: "ms",
+                instruction: "Seleccione la respuesta correcta",
+                question: "3. ¿Cómo puede una campaña basada en la Teoría del Comportamiento Planificado reforzar las normas sociales en la vía?",
+                options: [
+                    {t: "a) Incrementando exclusivamente las sanciones por incumplimiento.", c: false},
+                    {t: "b) Mostrando que la mayoría de los actores viales adopta conductas seguras.", c: true},
+                    {t: "c) Eliminando señales de tránsito para reducir distracciones.", c: false},
+                    {t: "d) Promoviendo únicamente habilidades técnicas de conducción.", c: false}
+                ],
+                feedback: "Las campañas que evidencian conductas seguras como prácticas comunes fortalecen la percepción de aceptación social y ayudan a que otros actores viales adopten esos comportamientos."
+            }
+        ];
+
+        let currentIdx = 0;
+        let score = 0;
+        const totalPoints = quizData.length;
+
+        function startQuiz() {
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('screen-quiz').classList.remove('hidden');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = quizData[currentIdx];
+            
+            document.getElementById('q-number').innerText = `PREGUNTA ${currentIdx + 1}/${quizData.length}`;
+            document.getElementById('progress-fill').style.width = `${((currentIdx + 1)/quizData.length)*100}%`;
+            document.getElementById('q-instruction').innerText = q.instruction;
+            document.getElementById('feedback-box').classList.add('hidden');
+            document.getElementById('warning-box').classList.add('hidden');
+            document.getElementById('btn-validate').classList.remove('hidden');
+
+            const caseBox = document.getElementById('case-box');
+            if (q.case) {
+                document.getElementById('case-text').innerText = q.case;
+                caseBox.classList.remove('hidden');
+            } else {
+                caseBox.classList.add('hidden');
+            }
+
+            const optContainer = document.getElementById('options-container');
+            optContainer.className = "space-y-3";
+            document.getElementById('q-text').innerText = q.question;
+            setupSelectionOptions(q, optContainer);
+        }
+
+        function setupSelectionOptions(q, container) {
+            container.innerHTML = '';
+            q.options.forEach((opt, i) => {
+                const d = document.createElement('div');
+                d.className = "option-card flex items-center p-4 rounded-xl mb-2 text-base";
+                d.innerHTML = `
+                    <input type="radio" name="ans" id="o${i}" value="${i}" class="w-5 h-5 accent-[#27728F]">
+                    <label for="o${i}" class="ml-4 w-full cursor-pointer font-medium text-slate-700">${opt.t}</label>
+                `;
+                d.onclick = () => {
+                    document.getElementById('warning-box').classList.add('hidden');
+                    document.querySelectorAll('.option-card').forEach(el => el.classList.remove('selected'));
+                    d.classList.add('selected');
+                    d.querySelector('input').checked = true;
+                };
+                container.appendChild(d);
+            });
+        }
+
+        function validateAnswer() {
+            const q = quizData[currentIdx];
+            let isCorrect = true;
+
+            const selectedInput = document.querySelector('input[name="ans"]:checked');
+            if (!selectedInput) {
+                document.getElementById('warning-box').classList.remove('hidden');
+                return;
+            }
+
+            document.getElementById('warning-box').classList.add('hidden');
+            
+            const chosenVal = parseInt(selectedInput.value);
+            q.userAnswer = chosenVal; 
+
+            isCorrect = q.options[chosenVal].c;
+            if (isCorrect) {
+                score++;
+            }
+
+            document.querySelectorAll('.option-card').forEach(el => el.classList.add('locked'));
+
+            const fBox = document.getElementById('feedback-box');
+            fBox.classList.remove('hidden', 'bg-green-50', 'border-green-200', 'bg-red-50', 'border-red-200');
+            document.getElementById('btn-validate').classList.add('hidden');
+
+            const fTitle = document.getElementById('feedback-title');
+            if (isCorrect) {
+                fTitle.innerText = "¡Correcto!";
+                fTitle.className = "font-bold text-lg text-green-700";
+                fBox.classList.add('bg-green-50', 'border-green-200');
+            } else {
+                fTitle.innerText = "Incorrecto";
+                fTitle.className = "font-bold text-lg text-red-700";
+                fBox.classList.add('bg-red-50', 'border-red-200');
+            }
+
+            document.getElementById('feedback-body').innerHTML = `<strong>Realimentación:</strong> ${q.feedback}`;
+        }
+
+        function nextStep() {
+            currentIdx++;
+            if (currentIdx < quizData.length) {
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('screen-quiz').classList.add('hidden');
+            document.getElementById('screen-results').classList.remove('hidden');
+            
+            const percent = Math.round((score / totalPoints) * 100);
+            const circumference = 596;
+            const offset = circumference - (percent / 100) * circumference;
+            
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    document.getElementById('final-circle').style.strokeDashoffset = offset;
+                }, 50);
+            });
+            
+            let count = 0;
+            const timer = setInterval(() => {
+                if (count >= percent) {
+                    document.getElementById('result-percent').innerText = percent;
+                    clearInterval(timer);
+                } else {
+                    count++;
+                    document.getElementById('result-percent').innerText = count;
+                }
+            }, 15);
+
+            document.getElementById('result-score').innerText = `Puntaje Final: ${score} de ${totalPoints} puntos`;
+            const msg = document.getElementById('result-msg');
+            
+            if (percent === 100) {
+                msg.innerText = "¡Excelente! Comprendes de manera impecable cómo aplicar la teoría de nudges para guiar decisiones sutiles y seguras en la vía, y cómo usar la norma subjetiva para incentivar conductas seguras.";
+            } else if (percent >= 66) {
+                msg.innerText = "¡Buen trabajo! Identificas la base teórica del diseño de campañas viales y la diferencia entre coerción y arquitectura de decisión.";
+            } else {
+                msg.innerText = "Te sugerimos repasar la premisa central de la teoría de los nudges (libertad de elección) y los componentes de las normas sociales del tránsito.";
+            }
+
+            buildSummaryCards();
+        }
+
+        function buildSummaryCards() {
+            const container = document.getElementById('summary-cards');
+            container.innerHTML = '';
+
+            quizData.forEach((q, idx) => {
+                const card = document.createElement('div');
+                card.className = "p-6 rounded-2xl border-l-8 bg-slate-50 shadow-sm transition-all duration-300 animate__animated animate__fadeInUp";
+                
+                let isFullyCorrect = false;
+                let statusBadge = '';
+                let userValHTML = '';
+                let correctValHTML = '';
+
+                const userAnsIdx = q.userAnswer;
+                const correctAnsIdx = q.options.findIndex(o => o.c);
+                isFullyCorrect = (userAnsIdx === correctAnsIdx);
+
+                if (isFullyCorrect) {
+                    card.classList.add('border-green-500');
+                    statusBadge = '<span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full">Correcto</span>';
+                    userValHTML = `<span class="text-green-700 font-medium">${q.options[userAnsIdx].t}</span>`;
+                } else {
+                    card.classList.add('border-red-500');
+                    statusBadge = '<span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full">Incorrecto</span>';
+                    userValHTML = `<span class="text-red-600 font-semibold">${userAnsIdx !== undefined && userAnsIdx !== null ? q.options[userAnsIdx].t : '[Sin responder]'}</span>`;
+                    correctValHTML = `
+                        <div class="text-sm mt-1">
+                            <span class="font-semibold text-slate-500">Respuesta correcta esperada:</span> 
+                            <span class="text-green-700 font-medium">${q.options[correctAnsIdx].t}</span>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-sm font-bold text-slate-400 uppercase tracking-wider">Pregunta ${idx + 1}</span>
+                        ${statusBadge}
+                    </div>
+                    <div class="font-semibold text-slate-800 mb-3 text-base">${q.question}</div>
+                    
+                    <div class="bg-white p-4 rounded-xl border border-slate-100 space-y-1.5 mb-3 shadow-inner">
+                        <div class="text-sm"><span class="font-semibold text-slate-600">Tu respuesta:</span> ${userValHTML}</div>
+                        ${correctValHTML}
+                    </div>
+                    
+                    <div class="text-sm text-slate-600 bg-slate-100 p-3 rounded-xl border border-slate-200">
+                        <strong class="text-custom">Explicación académica:</strong> ${q.feedback}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
